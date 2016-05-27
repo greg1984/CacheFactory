@@ -1,8 +1,0 @@
-c:\users\greg\documents\visual studio 2013\Projects\CacheFactory\CacheFactory\bin\Debug\CacheFactory.dll
-c:\users\greg\documents\visual studio 2013\Projects\CacheFactory\CacheFactory\bin\Debug\CacheFactory.pdb
-c:\users\greg\documents\visual studio 2013\Projects\CacheFactory\CacheFactory\obj\Debug\CacheFactory.dll
-c:\users\greg\documents\visual studio 2013\Projects\CacheFactory\CacheFactory\obj\Debug\CacheFactory.pdb
-C:\Users\Greg\Documents\DEV\CacheFactory\Source\bin\Debug\CacheFactory.dll
-C:\Users\Greg\Documents\DEV\CacheFactory\Source\bin\Debug\CacheFactory.pdb
-C:\Users\Greg\Documents\DEV\CacheFactory\Source\obj\Debug\CacheFactory.dll
-C:\Users\Greg\Documents\DEV\CacheFactory\Source\obj\Debug\CacheFactory.pdb
