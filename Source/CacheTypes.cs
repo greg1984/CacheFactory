@@ -1,6 +1,6 @@
 ﻿namespace CacheFactory
 {
-    enum CacheTypes
+    public enum CacheTypes
     {
         FirstInFirstOut = 0,
         FirstInLastOut = 1,

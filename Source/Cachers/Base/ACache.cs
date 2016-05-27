@@ -15,6 +15,7 @@
             SetCache(cache);
             Capacity = capacity;
             Utilization = 0;
+            _cacheName = string.Empty;
         }
 
         protected Dictionary<TCacheItemKey, TCacheItem> Cache;
@@ -22,6 +23,8 @@
         protected int Capacity;
 
         protected int Utilization;
+
+        private string _cacheName;
 
         public Dictionary<TCacheItemKey, TCacheItem> GetCache
         {
@@ -46,10 +49,20 @@
             }
         }
 
+        public string GetCacheName()
+        {
+            return _cacheName;
+        }
+
         public TCacheItem GetCachedItem(TCacheItemKey key)
         {
             Cache[key].SetLastAccessed(DateTime.Now);
             return Cache.First(x => x.Key == key).Value;
+        }
+
+        protected void SetCacheName(string cacheName)
+        {
+            _cacheName = cacheName;
         }
 
         public bool SetCapacity(int capacity)
