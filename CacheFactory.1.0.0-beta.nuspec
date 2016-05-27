@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+    <metadata>
+        <id>CacheFactory</id>
+        <version>1.0.0-beta</version>
+        <title>CacheFactory by Greg Goldberg</title>
+        <authors>Greg Goldberg</authors>
+        <licenseUrl>https://github.com/greg1984/CacheFactory/blob/development/LICENSE</licenseUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>A generic Cache package with a factory that creates various types for consumption</description>
+        <releaseNotes>Under BETA</releaseNotes>
+        <copyright>MIT 2016</copyright>
+        <language>en-US</language>
+    </metadata>
+    <files>
+        <file src="Source\CacheEventArgs\OverflowEventArgs.cs" target="src\Source\CacheEventArgs\OverflowEventArgs.cs" />
+        <file src="Source\Cachers\Base\ACache.cs" target="src\Source\Cachers\Base\ACache.cs" />
+        <file src="Source\Cachers\Base\CacheItem.cs" target="src\Source\Cachers\Base\CacheItem.cs" />
+        <file src="Source\Cachers\Base\CacheItemKey.cs" target="src\Source\Cachers\Base\CacheItemKey.cs" />
+        <file src="Source\Cachers\FirstInFirstOutCache.cs" target="src\Source\Cachers\FirstInFirstOutCache.cs" />
+        <file src="Source\Cachers\FirstInLastOutCache.cs" target="src\Source\Cachers\FirstInLastOutCache.cs" />
+        <file src="Source\Cachers\LeastRecentlyUsedCache.cs" target="src\Source\Cachers\LeastRecentlyUsedCache.cs" />
+        <file src="Source\Cachers\TimeBasedEvictionCache.cs" target="src\Source\Cachers\TimeBasedEvictionCache.cs" />
+        <file src="Source\CacheFactory.cs" target="src\Source\CacheFactory.cs" />
+        <file src="Source\CacheFactory.csproj" target="src\Source\CacheFactory.csproj" />
+        <file src="Source\CacheTypes.cs" target="src\Source\CacheTypes.cs" />
+        <file src="Source\LICENSE" target="src\Source\LICENSE" />
+        <file src="src\Test\_._" target="src\Test\_._" />
+        <file src="LICENSE" target="src\LICENSE" />
+    </files>
+</package>
