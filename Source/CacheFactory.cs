@@ -8,10 +8,21 @@ namespace CacheFactory
     using Cachers.Base;
     using Cachers;
 
+    /// <summary>
+    /// A factory to build Cache instances.
+    /// </summary>
+    /// <typeparam name="TCacheItem">A Generic type that enables the abstraction of a Cache Item.</typeparam>
+    /// <typeparam name="TCacheItemKey">A Generic type that enables the abstraction of a Key to look up the Cached item.</typeparam>
     public static class CacheFactory<TCacheItem, TCacheItemKey>
         where TCacheItemKey : CacheItemKey
         where TCacheItem : CacheItem<TCacheItemKey>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type">The type of cache returned.</param>
+        /// <param name="isGlobal">If the function creates a global cache or an instance of a cache.</param>
+        /// <returns></returns>
         public static ACache<TCacheItem, TCacheItemKey> CreateCache(CacheTypes type, bool isGlobal = false)
         {
             if (isGlobal) return GetGlobalCache(type);
@@ -31,6 +42,11 @@ namespace CacheFactory
             }
         }
 
+        /// <summary>
+        /// A method to return the global cache.
+        /// </summary>
+        /// <param name="type">The type of cache returned.</param>
+        /// <returns></returns>
         private static ACache<TCacheItem, TCacheItemKey> GetGlobalCache(CacheTypes type)
         {
             IEnumerable<ACache<TCacheItem, TCacheItemKey>> instances;
@@ -50,7 +66,7 @@ namespace CacheFactory
                     instances = GetInstances<TimeBasedEvictionCache<TCacheItem, TCacheItemKey>>();
                     break;
                 default:
-                    throw new ArgumentException("Invalid Cache type argument passed into the Cache Factory.");
+                    throw new ArgumentException("No Global Cache has been created for the given cache type.");
             }
 
             foreach (var instance in instances.Where(instance => instance.GetCacheName() == "global_cache"))
@@ -58,10 +74,15 @@ namespace CacheFactory
                 return instance;
             }
 
-            throw new ArgumentException("Invalid Cache type argument passed into the Cache Factory.");
+            throw new ArgumentException("No Global Cache has been created for the given cache type.");
         }
 
-        private static IList<T> GetInstances<T>()
+        /// <summary>
+        /// A private function which enables us to load classes from memory.
+        /// </summary>
+        /// <typeparam name="T">A "class" type class to enable global caching mechanisms.</typeparam>
+        /// <returns></returns>
+        private static IList<T> GetInstances<T>() where T : class 
         {
             return (from t in Assembly.GetExecutingAssembly().GetTypes()
                     where t.BaseType == (typeof(T)) && t.GetConstructor(Type.EmptyTypes) != null
