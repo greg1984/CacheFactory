@@ -10,38 +10,49 @@
     /// </summary>
     /// <typeparam name="TCacheItem">A Generic type that enables the abstraction of a Cache Item.</typeparam>
     /// <typeparam name="TCacheItemKey">A Generic type that enables the abstraction of a Key to look up the Cached item.</typeparam>
-    public abstract class ACache<TCacheItem, TCacheItemKey>
+    public abstract class ACache<TCacheItem, TCacheItemKey> : ICache<TCacheItem, TCacheItemKey>
         where TCacheItemKey : CacheItemKey
         where TCacheItem : CacheItem<TCacheItemKey>
     {
         /// <summary>
-        /// Base Cache instantiation.
+        /// Constructor for a Generic Abstract Cache.
         /// </summary>
-        /// <param name="cache"></param>
-        /// <param name="capacity"></param>
+        protected ACache()
+        {
+            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
+            _capacity = 50;
+            _utilization = 0;
+            _cacheName = string.Empty;
+        } 
+
+        /// <summary>
+        /// Constructor for a Generic Abstract Cache.
+        /// </summary>
+        /// <param name="cache">Initial value of the cache.</param>
+        /// <param name="capacity">Capacity the cache can hold (0 for infinite)</param>
         protected ACache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache = null, int capacity = 0)
         {
             if (cache == null) cache = new Dictionary<TCacheItemKey, TCacheItem>();
             SetCache(cache);
-            Capacity = capacity;
-            Utilization = 0;
+            _capacity = capacity;
+            _utilization = cache.Count();
             _cacheName = string.Empty;
         }
 
         /// <summary>
         /// Generic Cache Hash
         /// </summary>
-        protected Dictionary<TCacheItemKey, TCacheItem> Cache;
+        private Dictionary<TCacheItemKey, TCacheItem> _cache;
 
         /// <summary>
         /// Capacity of the Hash
         /// </summary>
-        protected int Capacity;
+        private int _capacity;
 
         /// <summary>
         /// Amount of Cached Items.
         /// </summary>
-        protected int Utilization;
+        private int _utilization;
 
         /// <summary>
         /// 
@@ -51,22 +62,25 @@
         /// <summary>
         /// Generic Cache held by the Abstracted Cache.
         /// </summary>
-        public Dictionary<TCacheItemKey, TCacheItem> GetCache
+        public Dictionary<TCacheItemKey, TCacheItem> GetCache()
         {
-            get { return Cache; }
+            return _cache;
         }
 
         /// <summary>
         /// Manually set the cache values.
         /// </summary>
         /// <param name="cache">The Generic Cache which is to be loaded into the Abstracted Cache</param>
-        public void SetCache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache)
+        /// <param name="resize"></param>
+        public void SetCache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache, bool resize = false)
         {
-            Cache = cache
+            if (resize && cache.Count() > _capacity) SetCapacity(cache.Count());
+
+            _cache = cache
                 .GroupBy(tp => tp.Key, tp => tp.Value)
                 .ToDictionary(gr => gr.Key, gr => cache.First(item => item.Key == gr.Key).Value);
 
-            Utilization = Cache.Count();
+            _utilization = _cache.Count();
         }
 
         /// <summary>
@@ -75,10 +89,10 @@
         /// <param name="key">The key which the Cache Item should be removed from the Hash by.</param>
         public void RemoveCacheItem(TCacheItemKey key)
         {
-            if (Cache.ContainsKey(key))
+            if (_cache.ContainsKey(key))
             {
-                Cache.Remove(key);
-                Utilization = Utilization - 1;
+                _cache.Remove(key);
+                _utilization = _utilization - 1;
             }
         }
 
@@ -92,14 +106,37 @@
         }
 
         /// <summary>
+        /// The name of the Cache which is created at runtime.
+        /// </summary>
+        /// <returns>The string holding the Cache Name.</returns>
+        public int GetCapacity()
+        {
+            return _capacity;
+        }
+
+        /// <summary>
+        /// The name of the Cache which is created at runtime.
+        /// </summary>
+        /// <returns>The string holding the Cache Name.</returns>
+        public int GetUtilization()
+        {
+            return _utilization;
+        }
+
+        /// <summary>
         /// Return a Cached item from the Generic Cache by Key if it exists.
         /// </summary>
         /// <param name="key">The Generic Key of the Cached Item that is to be removed.</param>
-        /// <returns></returns>
+        /// <returns>The cache item by key if it exists, null if it does not.</returns>
         public TCacheItem GetCachedItem(TCacheItemKey key)
         {
-            Cache[key].SetLastAccessed(DateTime.Now);
-            return Cache.First(x => x.Key == key).Value;
+            if (_cache.ContainsKey(key))
+            {
+                _cache[key].SetLastAccessed(DateTime.Now);
+                return _cache.First(x => x.Key == key).Value;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -128,9 +165,9 @@
         /// <returns></returns>
         public bool SetCapacity(int capacity)
         {
-            if (Utilization < Capacity) return false;
+            if (_utilization < _capacity) return false;
 
-            Capacity = capacity;
+            _capacity = capacity;
             return true;
         }
 
@@ -140,16 +177,15 @@
         /// <param name="item"></param>
         public void InsertCacheItem(TCacheItem item)
         {
-            Cache.Add(item.Key, item);
-
-            if (Capacity <= 0 || Utilization >= Capacity)
+            if (!_cache.ContainsKey(item.Key))
             {
-                OverflowEventArgs<TCacheItem, TCacheItemKey> args = new OverflowEventArgs<TCacheItem, TCacheItemKey>(item);
-                OnCacheOverflow(args);
+                _utilization = _utilization + 1;
             }
-            else if (!Cache.ContainsKey(item.Key))
+            _cache.Add(item.Key, item);
+
+            if (_capacity <= 0 || _utilization > _capacity)
             {
-                Utilization = Utilization + 1;
+                OnCacheOverflow(new OverflowEventArgs<TCacheItem, TCacheItemKey>(item));
             }
         }
 
@@ -158,8 +194,8 @@
         /// </summary>
         public void Clear()
         {
-            Cache = new Dictionary<TCacheItemKey, TCacheItem>();
-            Utilization = 0;
+            _cache = new Dictionary<TCacheItemKey, TCacheItem>();
+            _utilization = 0;
         }
 
         protected abstract void OnCacheOverflow(OverflowEventArgs<TCacheItem, TCacheItemKey> e);

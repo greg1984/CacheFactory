@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CacheFactory.cs" />
+    <Compile Include="Cachers\Base\ICache.cs" />
     <Compile Include="Cachers\CacheEvictor.cs" />
     <Compile Include="Cachers\FirstInLastOutCache.cs" />
     <Compile Include="Cachers\FirstInFirstOutCache.cs" />
@@ -41,7 +42,6 @@
     <Compile Include="CacheEventArgs\OverflowEventArgs.cs" />
     <Compile Include="Cachers\TimeBasedEvictionCache.cs" />
     <Compile Include="Cachers\TimeBasedEvictionStrategies.cs" />
-    <Compile Include="CacheTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

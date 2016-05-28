@@ -16,6 +16,15 @@
         /// <summary>
         /// Constructor to initialize an LRU Cache.
         /// </summary>
+        public LeastRecentlyUsedCache()
+        {
+            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
+            SetCapacity(50);
+        }
+
+        /// <summary>
+        /// Constructor to initialize an LRU Cache.
+        /// </summary>
         /// <param name="cache">The initial values of the Cache.</param>
         /// <param name="capacity">The capacity of the Cache.</param>
         public LeastRecentlyUsedCache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache = null, int capacity = 50)
@@ -29,7 +38,7 @@
         /// <param name="e">The event arguments which have caused the cache to overflow.</param>
         protected override void OnCacheOverflow(OverflowEventArgs<TCacheItem, TCacheItemKey> e)
         {
-            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetLRU(Cache).Key);
+            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetLRU(GetCache()).Key);
         }
     }
 }

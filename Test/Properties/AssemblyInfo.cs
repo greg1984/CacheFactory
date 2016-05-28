@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CacheFactory")]
-[assembly: AssemblyDescription("A Generic Cache Factory Class Library.")]
+[assembly: AssemblyTitle("CacheFactoryTest")]
+[assembly: AssemblyDescription("A Test package to test the Generic Cache Factory Class Library.")]
 [assembly: AssemblyConfiguration("1.0.5-beta")]
 [assembly: AssemblyCompany("Gregory Goldberg")]
 [assembly: AssemblyProduct("CacheFactory")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d1580464-b7c7-471d-84c2-bce6281d03ff")]
+[assembly: Guid("9ed5ef49-4865-44de-92d0-94663247f52a")]
 
 // Version information for an assembly consists of the following four values:
 //
