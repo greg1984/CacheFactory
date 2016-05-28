@@ -7,11 +7,11 @@
         /// <summary>
         /// A function to compare the hash value of the key to another item key.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">The other Cache Item key to compare with.</param>
+        /// <returns>Boolean representing if the keys match.</returns>
         public bool Equals(CacheItemKey other)
         {
-            return this.GetHashCode() == other.GetHashCode();
+            return GetHashCode() == other.GetHashCode();
         }
     }
 }

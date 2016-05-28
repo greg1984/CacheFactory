@@ -1,9 +1,8 @@
 ﻿namespace CacheFactory.Cachers
 {
     using Base;
-
-    using System.Collections.Generic;
     using CacheEventArgs;
+    using System.Collections.Generic;
 
     /// <summary>
     /// FIFO Cache.
@@ -14,6 +13,15 @@
         where TCacheItemKey : CacheItemKey
         where TCacheItem : CacheItem<TCacheItemKey>
     {
+        /// <summary>
+        /// Constructor to initialize an FIFO Cache.
+        /// </summary>
+        public FirstInFirstOutCache()
+        {
+            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
+            SetCapacity(50);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -30,7 +38,7 @@
         /// <param name="e">The event arguments which occured when the cache overflows.</param>
         protected override void OnCacheOverflow(OverflowEventArgs<TCacheItem, TCacheItemKey> e)
         {
-            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetOldestInsertedItem(Cache).Key);
+            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetOldestInsertedItem(GetCache()).Key);
         }
     }
 }

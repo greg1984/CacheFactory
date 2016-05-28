@@ -41,7 +41,6 @@
     <Compile Include="CacheEventArgs\OverflowEventArgs.cs" />
     <Compile Include="Cachers\TimeBasedEvictionCache.cs" />
     <Compile Include="Cachers\TimeBasedEvictionStrategies.cs" />
-    <Compile Include="CacheTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,6 @@
 ﻿namespace CacheFactory.CacheEventArgs
 {
     using Cachers.Base;
-
     using System;
 
     /// <summary>
@@ -41,6 +40,5 @@
         {
             _cachedItem = item;
         }
-
     }
 }

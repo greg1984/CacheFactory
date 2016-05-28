@@ -1,22 +1,32 @@
-﻿
-namespace CacheFactory.Cachers
+﻿namespace CacheFactory.Cachers
 {
     using Base;
-
+    using CacheEventArgs;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
-    using CacheEventArgs;
 
     /// <summary>
     /// A Time Based Eviction Cache.
     /// </summary>
     /// <typeparam name="TCacheItem">A Generic type that enables the abstraction of a Cache Item.</typeparam>
     /// <typeparam name="TCacheItemKey">A Generic type that enables the abstraction of a Key to look up the Cached item.</typeparam>
-    class TimeBasedEvictionCache<TCacheItem, TCacheItemKey> : ACache<TCacheItem, TCacheItemKey>
+    public class TimeBasedEvictionCache<TCacheItem, TCacheItemKey> : ACache<TCacheItem, TCacheItemKey>
         where TCacheItemKey : CacheItemKey
         where TCacheItem : CacheItem<TCacheItemKey>
     {
+        /// <summary>
+        /// Constructor to initialize an TTL Cache.
+        /// </summary>
+        public TimeBasedEvictionCache()
+        {
+            _timeSpan = TimeSpan.FromSeconds(1500);
+            _evictionStrategy = TimeBasedEvictionStrategies.FirstInFirstOut;
+            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
+            SetCapacity(50);
+        }
+
         /// <summary>
         /// TIme Based Eviction Cache Constructor
         /// </summary>
@@ -41,6 +51,7 @@ namespace CacheFactory.Cachers
         /// </summary>
         private TimeSpan _timeSpan;
 
+
         /// <summary>
         /// Set the amount of time that data is valid.
         /// </summary>
@@ -59,13 +70,20 @@ namespace CacheFactory.Cachers
             return _timeSpan;
         }
 
+        public new void InsertCacheItem(TCacheItem cacheItem)
+        {
+            RemoveExpiredCacheItems();
+            base.InsertCacheItem(cacheItem);
+        }
+
         /// <summary>
         /// Get the items which have expired in the cache.
         /// </summary>
         /// <returns>The items which have expired in the cache.</returns>
         public IEnumerable<TCacheItem> GetExpiredItems()
         {
-            return Cache.Where(x => DateTime.Now - x.Value.Inserted >= _timeSpan).Select(x => x.Value);
+            if (_timeSpan <= TimeSpan.Zero) return new Collection<TCacheItem>();
+            return GetCache().Where(x => (DateTime.Now - x.Value.Inserted).Duration() >= _timeSpan).Select(x => x.Value);
         }
 
         /// <summary>
@@ -84,19 +102,19 @@ namespace CacheFactory.Cachers
         protected override void OnCacheOverflow(OverflowEventArgs<TCacheItem, TCacheItemKey> e)
         {
             RemoveExpiredCacheItems();
-            if (Utilization >= Capacity)
+            if (GetUtilization() >= GetCapacity())
             {
                 TCacheItemKey key;
                 switch (_evictionStrategy)
                 {
                     case TimeBasedEvictionStrategies.LeastRecentlyUsed:
-                        key = CacheEvictor<TCacheItem, TCacheItemKey>.GetLRU(Cache).Key;
+                        key = CacheEvictor<TCacheItem, TCacheItemKey>.GetLRU(GetCache()).Key;
                         break;
                     case TimeBasedEvictionStrategies.FirstInFirstOut:
-                        key = CacheEvictor<TCacheItem, TCacheItemKey>.GetOldestInsertedItem(Cache).Key;
+                        key = CacheEvictor<TCacheItem, TCacheItemKey>.GetOldestInsertedItem(GetCache()).Key;
                         break;
                     case TimeBasedEvictionStrategies.FirstInLastOut:
-                        key = CacheEvictor<TCacheItem, TCacheItemKey>.GetLatestInsertedItem(Cache).Key;
+                        key = CacheEvictor<TCacheItem, TCacheItemKey>.GetLatestInsertedItem(GetCache()).Key;
                         break;
                     default:
                         throw new ArgumentException("Eviction strategy not set for the Time Based Eviction Cache " + GetCacheName());
@@ -106,10 +124,10 @@ namespace CacheFactory.Cachers
             }
         }
 
-        private void RemoveExpiredCacheItems()
+        public void RemoveExpiredCacheItems()
         {
-            var expiredItems = GetExpiredItems();
-            foreach (var item in expiredItems) RemoveCacheItem(item.Key);
+            var expiredItems = GetExpiredItems().Select(m => m.Key).ToList();
+            foreach (var item in expiredItems) RemoveCacheItem(item);
         }
     }
 }

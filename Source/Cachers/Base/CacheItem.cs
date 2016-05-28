@@ -9,7 +9,7 @@
     public class CacheItem<TCacheItemKey> where TCacheItemKey : CacheItemKey
     {
         /// <summary>
-        /// 
+        /// The Default constructor to make a cache item.
         /// </summary>
         /// <param name="accessTime"></param>
         /// <param name="key"></param>
@@ -20,7 +20,7 @@
             _insertTime = DateTime.Now;
         }
 
-        private TCacheItemKey _key;
+        private readonly TCacheItemKey _key;
         private DateTime _lastAccessed;
         private DateTime _insertTime;
 

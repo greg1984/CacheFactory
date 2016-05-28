@@ -1,0 +1,7 @@
+*.nupkg
+*.nuspec
+/Source/obj/Debug
+/Test/obj/Debug
+/*.user
+/Source/bin/Debug
+/Test/bin/Debug

@@ -1,10 +1,8 @@
 ﻿namespace CacheFactory.Cachers
 {
     using Base;
-
-    using System.Collections.Generic;
-    using System.Linq;
     using CacheEventArgs;
+using System.Collections.Generic;
 
     /// <summary>
     /// Generic FILO Cache.
@@ -15,6 +13,15 @@
         where TCacheItemKey : CacheItemKey
         where TCacheItem : CacheItem<TCacheItemKey>
     {
+        /// <summary>
+        /// Constructor to initialize an FILO Cache.
+        /// </summary>
+        public FirstInLastOutCache()
+        {
+            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
+            SetCapacity(50);
+        }
+
         /// <summary>
         /// Generic FILO Cache class Constructor
         /// </summary>
@@ -31,7 +38,7 @@
         /// <param name="e">The event arguments which have caused the cache to overflow.</param>
         protected override void OnCacheOverflow(OverflowEventArgs<TCacheItem, TCacheItemKey> e)
         {
-            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetLatestInsertedItem(Cache).Key);
+            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetLatestInsertedItem(GetCache()).Key);
         }
     }
 }

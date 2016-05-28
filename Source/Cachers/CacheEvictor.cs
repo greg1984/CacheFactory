@@ -1,9 +1,9 @@
-﻿using CacheFactory.Cachers.Base;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace CacheFactory.Cachers
+﻿namespace CacheFactory.Cachers
 {
+    using Base;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class CacheEvictor<TCacheItem, TCacheItemKey> 
         where TCacheItemKey : CacheItemKey
         where TCacheItem : CacheItem<TCacheItemKey>
@@ -24,7 +24,7 @@ namespace CacheFactory.Cachers
         /// <returns>The most recently inserted cache item.</returns>
         public static TCacheItem GetLatestInsertedItem(Dictionary<TCacheItemKey, TCacheItem> cache)
         {
-            return cache.Aggregate((p1, p2) => (p1.Value.Inserted < p2.Value.Inserted) ? p1 : p2).Value;
+            return cache.Aggregate((p1, p2) => (p1.Value.Inserted > p2.Value.Inserted) ? p1 : p2).Value;
         }
 
         /// <summary>
