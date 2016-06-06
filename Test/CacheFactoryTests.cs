@@ -1,8 +1,6 @@
 ﻿namespace CacheFactoryTest
 {
     using CacheFactory;
-    using CacheFactory.Cachers;
-    using CacheFactory.Cachers.Base;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using TestDTOs;
@@ -21,7 +19,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInFirstOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache();
             }
             catch (Exception ex)
             {
@@ -35,7 +33,7 @@
         [TestMethod]
         public void FIFOConstructorTest2()
         {
-            var cache = new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInFirstOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+            var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache();
             if (cache == null) Assert.Fail("First In First Out Cache resulted in null when being constructed.");
         }
 
@@ -47,7 +45,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInLastOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache();
             }
             catch (Exception ex)
             {
@@ -61,7 +59,7 @@
         [TestMethod]
         public void FILOConstructorTest2()
         {
-            var cache = new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInLastOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+            var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache();
             if (cache == null) Assert.Fail("First In Last Out Cache resulted in null when being constructed.");
         }
 
@@ -73,7 +71,8 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, LeastRecentlyUsedCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache();
+
             }
             catch (Exception ex)
             {
@@ -87,7 +86,7 @@
         [TestMethod]
         public void LRUConstructorTest2()
         {
-            var cache = new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, LeastRecentlyUsedCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+            var cache = new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache();
             if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed.");
         }
 
@@ -99,7 +98,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, TimeBasedEvictionCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+                // new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache();
             }
             catch (Exception ex)
             {
@@ -113,8 +112,8 @@
         [TestMethod]
         public void TimeBasedEvictionConstrutorTest2()
         {
-            var cache = new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, TimeBasedEvictionCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
-            if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed.");
+     ////       var cache = new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache();
+        //    if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed.");
         }
 
         /// <summary>
@@ -125,7 +124,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, InvalidCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache();
+                new CacheFactory<InvalidCacheItemKey, InvalidCacheItem, InvalidCache>().CreateCache();
                 Assert.Fail("Failed to generate the FIFO Cache.");
             }
             catch
@@ -142,7 +141,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInFirstOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
             }
             catch (Exception ex)
             {
@@ -158,7 +157,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInLastOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
             }
             catch (Exception ex)
             {
@@ -174,7 +173,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, LeastRecentlyUsedCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
             }
             catch (Exception ex)
             {
@@ -190,7 +189,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, TimeBasedEvictionCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+     //           new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache(true);
             }
             catch (Exception ex)
             {
@@ -206,7 +205,7 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, InvalidCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<InvalidCacheItemKey, InvalidCacheItem, InvalidCache>().CreateCache(true);
                 Assert.Fail("Failed to generate the FIFO Cache.");
             }
             catch
@@ -223,12 +222,29 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInFirstOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInFirstOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
             }
             catch (Exception ex)
             {
                 Assert.Fail("Failed to generate the FIFO Cache." + ex );
+            }
+        }
+
+        /// <summary>
+        /// Testing that the FIFO Global Cache throws an exception if you try and create multiple instances of them.
+        /// </summary>
+        [TestMethod]
+        public void FIFOMultipleGlobalConstructorTest2()
+        {
+            try
+            {
+                var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                Assert.AreEqual(cache.GetCacheName(), "global_cache");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Failed to generate the FIFO Cache." + ex);
             }
         }
 
@@ -240,8 +256,8 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInLastOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, FirstInLastOutCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
             }
             catch (Exception ex)
             {
@@ -257,8 +273,8 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, LeastRecentlyUsedCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, LeastRecentlyUsedCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
+                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
             }
             catch (Exception ex)
             {
@@ -274,8 +290,8 @@
         {
             try
             {
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, TimeBasedEvictionCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
-                new CacheFactory<CacheItem<CacheItemKey>, CacheItemKey, TimeBasedEvictionCache<CacheItem<CacheItemKey>, CacheItemKey>>().CreateCache(true);
+      //          new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache(true);
+        //        new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache(true);
             }
             catch (Exception ex)
             {

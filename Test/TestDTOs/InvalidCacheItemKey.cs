@@ -6,7 +6,7 @@
     /// <summary>
     /// A Cache Item Key to cause exceptions within the test cases.
     /// </summary>
-    class InvalidCacheItemKey : CacheItemKey
+    public class InvalidCacheItemKey : ACacheItemKey
     {
         public InvalidCacheItemKey()
         {

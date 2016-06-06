@@ -3,7 +3,7 @@
     using CacheFactory.Cachers.Base;
     using System;
 
-    public class GenuineKey : CacheItemKey
+    internal class GenuineKey : ACacheItemKey
     {
         public readonly Guid Key = Guid.NewGuid();
     }

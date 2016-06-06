@@ -14,20 +14,20 @@
     [TestClass]
     public class ACacheTests
     {
-        private ACache<CacheItem<GenuineKey>, GenuineKey> _cache;
-        private CacheItem<GenuineKey> _item1;
-        private CacheItem<GenuineKey> _item2;
-        private CacheItem<GenuineKey> _item3;
-        private CacheItem<GenuineKey> _item4;
+        private ACache<GenuineKey, GenuineCacheItem> _cache;
+        private GenuineCacheItem _item1;
+        private GenuineCacheItem _item2;
+        private GenuineCacheItem _item3;
+        private GenuineCacheItem _item4;
 
         [TestInitialize]
         public void MyTestInitialize()
         {
-            _cache = new FirstInFirstOutCache<CacheItem<GenuineKey>, GenuineKey>(capacity: 2);
-            _item1 = new CacheItem<GenuineKey>(DateTime.Now, new GenuineKey());
-            _item2 = new CacheItem<GenuineKey>(DateTime.Now, new GenuineKey());
-            _item3 = new CacheItem<GenuineKey>(DateTime.Now, new GenuineKey());
-            _item4 = new CacheItem<GenuineKey>(DateTime.Now, new GenuineKey());
+            _cache = new FirstInFirstOutCache<GenuineKey, GenuineCacheItem>(capacity: 2);
+            _item1 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
+            _item2 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
+            _item3 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
+            _item4 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
             _cache.InsertCacheItem(_item1);
         }
 
@@ -46,10 +46,10 @@
         [TestMethod]
         public void SetCacheTest()
         {
-            _cache.SetCache(new Collection<KeyValuePair<GenuineKey, CacheItem<GenuineKey>>>
+            _cache.SetCache(new Collection<KeyValuePair<GenuineKey, GenuineCacheItem>>
             {
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item1),
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item2)
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item1),
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item2)
             });
         }
 
@@ -59,11 +59,11 @@
         [TestMethod]
         public void SetCacheOverCapacityTest()
         {
-            _cache.SetCache(new Collection<KeyValuePair<GenuineKey, CacheItem<GenuineKey>>>
+            _cache.SetCache(new Collection<KeyValuePair<GenuineKey, GenuineCacheItem>>
             {
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item1),
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item2),
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item3)
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item1),
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item2),
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item3)
             });
         }
 
@@ -73,12 +73,12 @@
         [TestMethod]
         public void ResizeCacheOverCapacityTest()
         {
-            _cache.SetCache(new Collection<KeyValuePair<GenuineKey, CacheItem<GenuineKey>>>
+            _cache.SetCache(new Collection<KeyValuePair<GenuineKey, GenuineCacheItem>>
             {
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item1),
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item2),
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item3),
-                new KeyValuePair<GenuineKey, CacheItem<GenuineKey>>(_item1.Key, _item4)
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item1),
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item2),
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item3),
+                new KeyValuePair<GenuineKey, GenuineCacheItem>(_item1.GetKey(), _item4)
             }, true);
         }
 
@@ -90,7 +90,7 @@
         {
             try
             {
-                _cache.RemoveCacheItem(_item4.Key);
+                _cache.RemoveCacheItem(_item4.GetKey());
                 Assert.Fail("Exception expected when searching for invalid item.");
             }
             catch
@@ -105,7 +105,7 @@
         [TestMethod]
         public void RemoveItemFromCacheTest()
         {
-            _cache.RemoveCacheItem(_item1.Key);
+            _cache.RemoveCacheItem(_item1.GetKey());
             Assert.IsTrue(_cache.GetUtilization() == 0);
         }
 
@@ -115,7 +115,7 @@
         [TestMethod]
         public void FailGetItemFromCacheTest()
         {
-            _cache.GetCachedItem(_item2.Key);
+            _cache.GetCachedItem(_item2.GetKey());
         }
 
         /// <summary>
@@ -124,7 +124,7 @@
         [TestMethod]
         public void GetItemFromCacheTest()
         {
-            _cache.GetCachedItem(_item1.Key);
+            _cache.GetCachedItem(_item1.GetKey());
         }
 
         /// <summary>
@@ -133,7 +133,7 @@
         [TestMethod]
         public void GoodCacheNameChangeTest()
         {
-            _cache.SetCacheName("cache_id_1");
+            _cache.SetCacheName("cache_id_1", new List<ICache<GenuineKey, GenuineCacheItem>>());
             Assert.AreEqual(_cache.GetCacheName(), "cache_id_1");
         }
 
@@ -145,7 +145,7 @@
         {
             try
             {
-                _cache.SetCacheName("global_cache");
+                _cache.SetCacheName("global_cache", new List<ICache<GenuineKey, GenuineCacheItem>>());
                 Assert.Fail("Excepted cache to fail creation when utilizing the global cache.");
             }
             catch
@@ -235,6 +235,58 @@
         {
             _cache.Clear();
             Assert.AreEqual(0, _cache.GetUtilization());
+        }
+
+        [TestMethod]
+        public void ItemAccessedTimeToLiveTest()
+        {
+            var timeSpan = TimeSpan.MaxValue;
+            _cache.SetItemAccessedTimeToLive(timeSpan);
+            Assert.AreEqual(timeSpan, _cache.GetItemAccessedTimeToLive());
+        }
+
+        [TestMethod]
+        public void ItemCreatedTimeToLiveTest()
+        {
+            var timeSpan = TimeSpan.MaxValue;
+            _cache.SetItemCreatedTimeToLive(timeSpan);
+            Assert.AreEqual(timeSpan, _cache.GetItemCreatedTimeToLive());
+        }
+
+        [TestMethod]
+        public void AccessedTimeToLiveTest()
+        {
+            var timeSpan = TimeSpan.FromDays(1);
+            _cache.SetAccessedTimeToLive(timeSpan);
+            Assert.AreEqual(timeSpan, _cache.GetAccessedTimeToLive());
+        }
+
+        [TestMethod]
+        public void CreatedTimeToLiveTest()
+        {
+            var timeSpan = TimeSpan.MaxValue;
+            _cache.SetCreatedTimeToLive(timeSpan);
+            Assert.AreEqual(timeSpan, _cache.GetCreatedTimeToLive());
+        }
+
+        [TestMethod]
+        public void AccessedTimeToLiveTest2()
+        {
+            var timeSpan = TimeSpan.FromDays(1);
+            _cache.SetAccessedTimeToLive(timeSpan);
+            _cache.InsertCacheItem(_item3);
+            _cache.InsertCacheItem(_item4);
+            Assert.AreEqual(timeSpan, _cache.GetAccessedTimeToLive());
+        }
+
+        [TestMethod]
+        public void CreatedTimeToLiveTest2()
+        {
+            var timeSpan = TimeSpan.MaxValue;
+            _cache.SetCreatedTimeToLive(timeSpan);
+            _cache.InsertCacheItem(_item3);
+            _cache.InsertCacheItem(_item4);
+            Assert.AreEqual(timeSpan, _cache.GetCreatedTimeToLive());
         }
     }
 }

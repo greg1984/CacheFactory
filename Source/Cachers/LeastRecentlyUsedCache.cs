@@ -7,19 +7,17 @@
     /// <summary>
     /// Generic Least Recently Used Cache
     /// </summary>
+    /// <typeparam name="TCacheItemKey"></typeparam>
     /// <typeparam name="TCacheItem">A Generic type that enables the abstraction of a Cache Item.</typeparam>
-    /// <typeparam name="TCacheItemKey">A Generic type that enables the abstraction of a Key to look up the Cached item.</typeparam>
-    public class LeastRecentlyUsedCache<TCacheItem, TCacheItemKey> : ACache<TCacheItem, TCacheItemKey>
-        where TCacheItemKey : CacheItemKey
-        where TCacheItem : CacheItem<TCacheItemKey>
+    public abstract class LeastRecentlyUsedCache<TCacheItemKey, TCacheItem> : ACache<TCacheItemKey, TCacheItem>
+        where TCacheItemKey : ICacheItemKey
+        where TCacheItem : ICacheItem<TCacheItemKey>, new()
     {
         /// <summary>
         /// Constructor to initialize an LRU Cache.
         /// </summary>
-        public LeastRecentlyUsedCache()
+        public LeastRecentlyUsedCache() : base(new Dictionary<TCacheItemKey, TCacheItem>(), 50)
         {
-            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
-            SetCapacity(50);
         }
 
         /// <summary>
@@ -30,15 +28,17 @@
         public LeastRecentlyUsedCache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache = null, int capacity = 50)
             : base(cache, capacity)
         {
+            OnCacheOverflowed += LeastRecentlyUsedCache_OnCacheOverflowed;
         }
 
         /// <summary>
         /// An event which is fired when the cache overflows.
         /// </summary>
         /// <param name="e">The event arguments which have caused the cache to overflow.</param>
-        protected override void OnCacheOverflow(OverflowEventArgs<TCacheItem, TCacheItemKey> e)
+        private void LeastRecentlyUsedCache_OnCacheOverflowed(CacheItemEventArgs<TCacheItemKey, TCacheItem> e)
         {
-            RemoveCacheItem(CacheEvictor<TCacheItem, TCacheItemKey>.GetLRU(GetCache()).Key);
+
+            RemoveCacheItem(CacheEvictor<TCacheItemKey, TCacheItem>.GetLRU(GetCache()).GetKey());
         }
     }
 }

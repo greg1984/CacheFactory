@@ -4,9 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public static class CacheEvictor<TCacheItem, TCacheItemKey> 
-        where TCacheItemKey : CacheItemKey
-        where TCacheItem : CacheItem<TCacheItemKey>
+    /// <summary>
+    /// Cache eviction methods.
+    /// </summary>
+    /// <typeparam name="TCacheItemKey"></typeparam>
+    /// <typeparam name="TCacheItem">A Generic type that enables the abstraction of a Cache Item.</typeparam>
+    public static class CacheEvictor<TCacheItemKey, TCacheItem> 
+        where TCacheItemKey : ICacheItemKey
+        where TCacheItem : ICacheItem<TCacheItemKey>, new()
     {
         /// <summary>
         /// Get the Least Recently Used Cache item.
@@ -15,7 +20,7 @@
         /// <returns>The Least Recently Used Cache item.</returns>
         public static TCacheItem GetLRU(Dictionary<TCacheItemKey, TCacheItem> cache)
         {
-            return cache.Aggregate((p1, p2) => (p1.Value.LastAccessed < p2.Value.LastAccessed) ? p1 : p2).Value;
+            return cache.Aggregate((p1, p2) => (p1.Value.GetLastAccessedTime() < p2.Value.GetLastAccessedTime()) ? p1 : p2).Value;
         }
 
         /// <summary>
@@ -24,7 +29,7 @@
         /// <returns>The most recently inserted cache item.</returns>
         public static TCacheItem GetLatestInsertedItem(Dictionary<TCacheItemKey, TCacheItem> cache)
         {
-            return cache.Aggregate((p1, p2) => (p1.Value.Inserted > p2.Value.Inserted) ? p1 : p2).Value;
+            return cache.Aggregate((p1, p2) => (p1.Value.GetCreatedTime() > p2.Value.GetCreatedTime()) ? p1 : p2).Value;
         }
 
         /// <summary>
@@ -33,7 +38,7 @@
         /// <returns>The oldest inserted item.</returns>
         public static TCacheItem GetOldestInsertedItem(Dictionary<TCacheItemKey, TCacheItem> cache)
         {
-            return cache.Aggregate((p1, p2) => (p1.Value.Inserted < p2.Value.Inserted) ? p1 : p2).Value;
+            return cache.Aggregate((p1, p2) => (p1.Value.GetCreatedTime() < p2.Value.GetCreatedTime()) ? p1 : p2).Value;
         }
     }
 }

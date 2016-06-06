@@ -57,7 +57,16 @@
     <Compile Include="Cachers\FirstInLastOutCacheTests.cs" />
     <Compile Include="Cachers\LeastRecentlyUsedCacheTests.cs" />
     <Compile Include="Cachers\TimeBasedEvictionCacheTests.cs" />
+    <Compile Include="TestDTOs\LeastRecentlyUsedGenuineCache.cs" />
+    <Compile Include="TestDTOs\FirstInLastOutGenuineCache.cs" />
+    <Compile Include="TestDTOs\LeastRecentlyUsedInvalidCache.cs" />
+    <Compile Include="TestDTOs\FirstInLastOutInvalidCache.cs" />
+    <Compile Include="TestDTOs\FirstInFirstOutInvalidCache.cs" />
+    <Compile Include="TestDTOs\FirstInFirstOutGenuineCache.cs" />
+    <Compile Include="TestDTOs\GenuineCacheItem.cs" />
+    <Compile Include="TestDTOs\GenuineCacheContract.cs" />
     <Compile Include="TestDTOs\GenuineKey.cs" />
+    <Compile Include="TestDTOs\InvalidCacheItem.cs" />
     <Compile Include="TestDTOs\InvalidCache.cs" />
     <Compile Include="TestDTOs\InvalidCacheItemKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,6 +76,7 @@
     <ProjectReference Include="..\Source\CacheFactory.csproj">
       <Project>{b9103a50-7d9b-4f67-812f-239e976a995e}</Project>
       <Name>CacheFactory</Name>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

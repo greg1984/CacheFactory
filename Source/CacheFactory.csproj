@@ -30,18 +30,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CacheEventArgs\CacheEventArgs.cs" />
+    <Compile Include="CacheEventArgs\CacheItemKeyEventArgs.cs" />
+    <Compile Include="CacheEventArgs\CacheItemEventArgs.cs" />
     <Compile Include="CacheFactory.cs" />
     <Compile Include="Cachers\Base\ICache.cs" />
+    <Compile Include="Cachers\Base\ICacheItem.cs" />
+    <Compile Include="Cachers\Base\ICacheItemKey.cs" />
     <Compile Include="Cachers\CacheEvictor.cs" />
     <Compile Include="Cachers\FirstInLastOutCache.cs" />
     <Compile Include="Cachers\FirstInFirstOutCache.cs" />
     <Compile Include="Cachers\LeastRecentlyUsedCache.cs" />
-    <Compile Include="Cachers\Base\CacheItem.cs" />
-    <Compile Include="Cachers\Base\CacheItemKey.cs" />
+    <Compile Include="Cachers\Base\ACacheItem.cs" />
+    <Compile Include="Cachers\Base\ACacheItemKey.cs" />
     <Compile Include="Cachers\Base\ACache.cs" />
-    <Compile Include="CacheEventArgs\OverflowEventArgs.cs" />
-    <Compile Include="Cachers\TimeBasedEvictionCache.cs" />
-    <Compile Include="Cachers\TimeBasedEvictionStrategies.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
