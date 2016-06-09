@@ -11,26 +11,10 @@
     public class FirstInLastOutCacheTests
     {
         /// <summary>
-        /// Test the Constructor for the First In Last Out Cache.
-        /// </summary>
-        [TestMethod]
-        public void FILOConstructorTest()
-        {
-            try
-            {
-                new FirstInLastOutGenuineCache();
-            }
-            catch (Exception)
-            {
-                Assert.Fail("Exception thrown when generating the First In Last Out Cache.");
-            }
-        }
-
-        /// <summary>
         /// Test the Constructor for the First In First Out Cache
         /// </summary>
         [TestMethod]
-        public void FILOConstructorTest2()
+        public void FILOConstructorTest()
         {
             var cache = new FirstInLastOutGenuineCache();
             if (cache == null) Assert.Fail("FIFO Cache resulted in null when being constructed.");
@@ -40,7 +24,7 @@
         /// Ensure that the cache will only load to capacity.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowTest()
+        public void OnCacheOverflowCheckUtilizationTest()
         {
             var cache = new FirstInLastOutGenuineCache();
             cache.SetCapacity(1);
@@ -54,7 +38,7 @@
         /// Verify the eviction strategy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowTest2()
+        public void OnCacheOverflowCheckItemTest()
         {
             var item1 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
             item1.SetCreatedTime(DateTime.Now);
@@ -90,7 +74,7 @@
         /// Verification that a Timespan of 0 prevents the Time Based eviction from occuring when using the First In Last Out Eviction policy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowCreatedTTLTest3()
+        public void OnCacheOverflowCreatedTTLZeroTimespanTest()
         {
             var cache = new FirstInLastOutGenuineCache();
             cache.SetItemCreatedTimeToLive(TimeSpan.Zero);
@@ -114,7 +98,7 @@
         /// Verification that a Timespan of 0 prevents the Time Based eviction from occuring when using the First In Last Out Eviction policy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowAccessedTTLTest3()
+        public void OnCacheOverflowAccessedTTLTest()
         {
             var cache = new FirstInLastOutGenuineCache();
             cache.SetItemAccessedTimeToLive(TimeSpan.Zero);
@@ -138,7 +122,7 @@
         /// Verification that the First In Last Out Cache Item item gets evicted first (Time set manually).
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowCreatedTTLTest2()
+        public void OnCacheOverflowCreatedTTLMaxTimespanTest()
         {
             var cache = new FirstInLastOutGenuineCache();
             cache.SetItemCreatedTimeToLive(TimeSpan.MaxValue);
@@ -160,7 +144,7 @@
         /// Verification that the First In Last Out Cache Item item gets evicted first (Time set manually).
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowAccessedTTLTest2()
+        public void OnCacheOverflowAccessedTTLMaxTimespanTest()
         {
             var cache = new FirstInLastOutGenuineCache();
             cache.SetItemAccessedTimeToLive(TimeSpan.MaxValue);
@@ -184,15 +168,9 @@
         [TestMethod]
         public void CreatedCreatedTimeBasedEvictionFILOConstrutorTest()
         {
-            try
-            {
-                var timespanCache = new FirstInLastOutGenuineCache();
-                timespanCache.SetItemCreatedTimeToLive(TimeSpan.FromDays(1));
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Exception thrown when generatinge the Created Time Based FIFO Eviction Cache." + ex);
-            }
+            var timespanCache = new FirstInLastOutGenuineCache();
+            timespanCache.SetItemCreatedTimeToLive(TimeSpan.FromDays(1));
+            Assert.AreEqual(TimeSpan.FromDays(1), timespanCache.GetItemCreatedTimeToLive());
         }
 
         /// <summary>
@@ -201,15 +179,9 @@
         [TestMethod]
         public void CreatedAccessedTimeBasedEvictionFILOConstrutorTest()
         {
-            try
-            {
-                var timespanCache = new FirstInLastOutGenuineCache();
-                timespanCache.SetItemAccessedTimeToLive(TimeSpan.FromDays(1));
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Exception thrown when generatinge the Created Time Based FIFO Eviction Cache." + ex);
-            }
+            var timespanCache = new FirstInLastOutGenuineCache();
+            timespanCache.SetItemAccessedTimeToLive(TimeSpan.FromDays(1));
+            Assert.AreEqual(TimeSpan.FromDays(1), timespanCache.GetItemAccessedTimeToLive());
         }
 
         /// <summary>
@@ -259,15 +231,9 @@
         [TestMethod]
         public void AccessedTimeBasedEvictionFILOConstrutorTest()
         {
-            try
-            {
-                var timespanCache = new FirstInLastOutGenuineCache();
-                timespanCache.SetItemAccessedTimeToLive(TimeSpan.FromDays(1));
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Exception thrown when generatinge the Accessed Time Based FIFO Eviction Cache." + ex);
-            }
+            var timespanCache = new FirstInLastOutGenuineCache();
+            timespanCache.SetItemAccessedTimeToLive(TimeSpan.FromDays(1));
+            Assert.AreEqual(TimeSpan.FromDays(1), timespanCache.GetItemAccessedTimeToLive());
         }
     }
 }

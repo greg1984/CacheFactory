@@ -1,9 +1,7 @@
 ﻿namespace CacheFactoryTest.Cachers
 {
-    using CacheFactory.Cachers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using TestDTOs;
 
@@ -17,25 +15,9 @@
         /// Test the Constructor for the First In First Out Cache
         /// </summary>
         [TestMethod]
-        public void FIFOConstructorTest()
-        {
-            try
-            {
-                new FirstInFirstOutCache<GenuineKey, GenuineCacheItem>();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Exception thrown when generating the FIFO Cache." + ex);
-            }
-        }
-
-        /// <summary>
-        /// Test the Constructor for the First In First Out Cache
-        /// </summary>
-        [TestMethod]
         public void FIFOConstructorTest2()
         {
-            var cache = new FirstInFirstOutCache<GenuineKey, GenuineCacheItem>();
+            var cache = new FirstInFirstOutGenuineCache();
             if (cache == null) Assert.Fail("First In First Out Cache resulted in null when being constructed.");
         }
 
@@ -45,7 +27,8 @@
         [TestMethod]
         public void OnCacheOverflowTest()
         {
-            var cache = new FirstInFirstOutCache<GenuineKey, GenuineCacheItem>(new Dictionary<GenuineKey, GenuineCacheItem>(), 1);
+            var cache = new FirstInFirstOutGenuineCache();
+            cache.SetCapacity(1);
             cache.InsertCacheItem(new GenuineCacheItem(DateTime.Now.AddMinutes(2), new GenuineKey()));
             cache.InsertCacheItem(new GenuineCacheItem(DateTime.Now.AddMinutes(1), new GenuineKey()));
             cache.InsertCacheItem(new GenuineCacheItem(DateTime.Now, new GenuineKey()));
@@ -90,14 +73,15 @@
         /// Verify the eviction strategy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowTest2()
+        public void OnCacheOverflowTestEvictsCorrectly()
         {
             var item1 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
             item1.SetCreatedTime(DateTime.Now);
             var item2 = new GenuineCacheItem(DateTime.Now.AddSeconds(1), new GenuineKey());
             item2.SetCreatedTime(DateTime.Now.AddSeconds(1));
             var item3 = new GenuineCacheItem(DateTime.Now.AddSeconds(2), new GenuineKey());
-            var cache = new FirstInFirstOutCache<GenuineKey, GenuineCacheItem>(new Dictionary<GenuineKey, GenuineCacheItem>(), 1);
+            var cache = new FirstInFirstOutGenuineCache();
+            cache.SetCapacity(1);
             item3.SetCreatedTime(DateTime.Now.AddSeconds(2));
             cache.InsertCacheItem(item1);
             cache.InsertCacheItem(item2);
@@ -109,7 +93,7 @@
         ///  Verification that the cache only loads to capacity with the First In First Out Eviction strategy.
         /// </summary>
         [TestMethod]
-        public void OnAccessedTimeBasedCacheOverflowFIFOTest()
+        public void OnAccessedTimeBasedCacheOverflowFIFOMaxTimespanTest()
         {
             var cache = new FirstInFirstOutGenuineCache();
             cache.SetItemAccessedTimeToLive(TimeSpan.MaxValue);
@@ -124,7 +108,7 @@
         /// Verification that a Timespan of 0 prevents the Time Based eviction from occuring when using the First in First Out Eviction policy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowFIFOTest3()
+        public void OnCacheOverflowFIFOZeroTimespanTest()
         {
             var cache = new FirstInFirstOutGenuineCache();
             cache.SetItemAccessedTimeToLive(TimeSpan.Zero);
@@ -132,17 +116,18 @@
 
             var item1 = new GenuineCacheItem(DateTime.Now.AddSeconds(-1), new GenuineKey());
             item1.SetCreatedTime(DateTime.Now.AddSeconds(-1));
-            var item2 = new GenuineCacheItem(DateTime.Now.AddSeconds(-3), new GenuineKey());
-            item2.SetCreatedTime(DateTime.Now.AddSeconds(-3));
-            var item3 = new GenuineCacheItem(DateTime.Now.AddSeconds(2), new GenuineKey());
-            item3.SetCreatedTime(DateTime.Now.AddSeconds(2));
+            var item2 = new GenuineCacheItem(DateTime.Now.AddSeconds(2), new GenuineKey());
+            item2.SetCreatedTime(DateTime.Now.AddSeconds(2));
+            var item3 = new GenuineCacheItem(DateTime.Now.AddSeconds(-3), new GenuineKey());
+            item3.SetCreatedTime(DateTime.Now.AddSeconds(-3));
             cache.InsertCacheItem(item1);
             cache.InsertCacheItem(item2);
             item1.SetCreatedTime(DateTime.Now.AddSeconds(-1));
             item1.SetLastAccessedTime(DateTime.Now.AddSeconds(-1));
             cache.InsertCacheItem(item3);
-            Assert.IsTrue(cache.GetCache().ContainsKey(item1.GetKey()));
+            Assert.IsTrue(cache.GetCache().ContainsKey(item2.GetKey()));
         }
+
         /// <summary>
         /// Verification that stale objects get removed from the cache.
         /// </summary>
@@ -166,7 +151,7 @@
         /// Verification that the First In First Out Cache Item item gets evicted first (Time set manually).
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowFIFOTest2()
+        public void OnCacheOverflowFIFOEvictionWorksTest()
         {
             var cache = new FirstInFirstOutGenuineCache();
             cache.SetItemAccessedTimeToLive(TimeSpan.MaxValue);

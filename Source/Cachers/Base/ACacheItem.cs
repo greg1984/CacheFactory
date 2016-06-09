@@ -21,12 +21,23 @@
             SetCreatedTime(DateTime.Now);
         }
 
+        /// <summary>
+        /// The Key which will identify the Cached item in the Cache.
+        /// </summary>
         private TCacheItemKey _key;
+
+        /// <summary>
+        /// THe Last time the cache was accessed.
+        /// </summary>
         private DateTime _lastAccessedTime;
+
+        /// <summary>
+        /// The time the cache was created and / or cleared.
+        /// </summary>
         private DateTime _createdTime;
 
         /// <summary>
-        /// The DateTime value of the last time the Cache Item was accessed.
+        /// The DateTime value of the last time the Cache item was accessed.
         /// </summary>
         public DateTime GetLastAccessedTime()
         {
@@ -34,7 +45,7 @@
         }
 
         /// <summary>
-        /// The Inserted DateTime value of when the item was injected into the Cache.
+        /// The Inserted DateTime value of when the Cache item was created.
         /// </summary>
         public DateTime GetCreatedTime()
         {

@@ -50,21 +50,19 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Cachers\Base\ACacheWithEventsTests.cs" />
     <Compile Include="Cachers\Base\CacheItemKeyTests.cs" />
     <Compile Include="Cachers\Base\ACacheTests.cs" />
     <Compile Include="Cachers\CacheEvictorTests.cs" />
     <Compile Include="Cachers\FirstInFirstOutCacheTests.cs" />
     <Compile Include="Cachers\FirstInLastOutCacheTests.cs" />
     <Compile Include="Cachers\LeastRecentlyUsedCacheTests.cs" />
-    <Compile Include="Cachers\TimeBasedEvictionCacheTests.cs" />
+    <Compile Include="TestDTOs\FirstInFirstOutCacheNoEvents.cs" />
+    <Compile Include="TestDTOs\FirstInFirstOutGenuineCacheNoEvents.cs" />
     <Compile Include="TestDTOs\LeastRecentlyUsedGenuineCache.cs" />
     <Compile Include="TestDTOs\FirstInLastOutGenuineCache.cs" />
-    <Compile Include="TestDTOs\LeastRecentlyUsedInvalidCache.cs" />
-    <Compile Include="TestDTOs\FirstInLastOutInvalidCache.cs" />
-    <Compile Include="TestDTOs\FirstInFirstOutInvalidCache.cs" />
     <Compile Include="TestDTOs\FirstInFirstOutGenuineCache.cs" />
     <Compile Include="TestDTOs\GenuineCacheItem.cs" />
-    <Compile Include="TestDTOs\GenuineCacheContract.cs" />
     <Compile Include="TestDTOs\GenuineKey.cs" />
     <Compile Include="TestDTOs\InvalidCacheItem.cs" />
     <Compile Include="TestDTOs\InvalidCache.cs" />

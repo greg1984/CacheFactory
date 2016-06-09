@@ -4,7 +4,7 @@
     using TestDTOs;
 
     /// <summary>
-    /// Summary description for CacheFactoryTest
+    /// A Test class to ensure functionality within CacheItemKeys
     /// </summary>
     [TestClass]
     public class CacheItemKeyTests

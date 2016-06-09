@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace CacheFactory.Cachers.Base
+﻿namespace CacheFactory.Cachers.Base
 {
+    using System;
+
     /// <summary>
     /// An identifier for the cache record which you can compare.
     /// </summary>

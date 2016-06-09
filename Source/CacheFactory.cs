@@ -1,10 +1,7 @@
 ﻿namespace CacheFactory
 {
     using Cachers.Base;
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
     /// <summary>
     /// A factory to build Cache instances.
@@ -15,7 +12,7 @@
     public class CacheFactory<TCacheItemKey, TCacheItem, TCache>
         where TCacheItemKey : ICacheItemKey
         where TCacheItem : ICacheItem<TCacheItemKey>, new()
-        where TCache : ICache<TCacheItemKey, TCacheItem>, new()
+        where TCache : ACacheWithEvents<TCacheItemKey, TCacheItem>, new()
     {
         /// <summary>
         /// Create a cache given a specific cache type.
@@ -33,28 +30,17 @@
         /// <returns>The implemented Cache.</returns>
         private static TCache GetGlobalCache()
         {
-            var instances = GetInstances();
+            var instances = CacheManager<TCacheItemKey, TCacheItem, TCache>.GetCacheByName("global_cache");
 
-            foreach (var instance in instances.Where(instance => instance.GetCacheName() == "global_cache"))
+            if (instances.Any())
             {
-                return instance;
+                return instances.First();
             }
 
             var newCache = new TCache();
-            newCache.SetCacheName("global_cache", instances);
-
+            newCache.SetCacheName("global_cache");
+            CacheManager<TCacheItemKey, TCacheItem, TCache>.AddCache(newCache);
             return newCache;
-        }
-
-        /// <summary>
-        /// A private function which enables us to load classes from memory.
-        /// </summary>
-        /// <returns>Return the instances of a specific cache type.</returns>
-        private static IEnumerable<TCache> GetInstances()
-        {
-            return (from t in Assembly.GetExecutingAssembly().GetTypes().Union(Assembly.GetCallingAssembly().GetTypes()).Distinct()
-                    where t == typeof(TCache)
-                    select (TCache)Activator.GetObject(t, ""));
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using System.Threading;
-
-namespace CacheFactoryTest.Cachers
+﻿namespace CacheFactoryTest.Cachers
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
+    using System.Threading;
     using TestDTOs;
 
     /// <summary>
@@ -13,26 +12,10 @@ namespace CacheFactoryTest.Cachers
     public class LeastRecentlyUsedCacheTests
     {
         /// <summary>
-        /// Tests for the Constructor for the Least Recently Used Cache.
-        /// </summary>
-        [TestMethod]
-        public void LRUConstructorTest()
-        {
-            try
-            {
-                new LeastRecentlyUsedGenuineCache();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Exception thrown when generating the Least Recently Used Cache." + ex);
-            }
-        }
-
-        /// <summary>
         /// Test the Constructor for the First In First Out Cache
         /// </summary>
         [TestMethod]
-        public void LRUConstructorTest2()
+        public void LRUConstructorTest()
         {
             var cache = new LeastRecentlyUsedGenuineCache();
             if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed..");
@@ -42,7 +25,7 @@ namespace CacheFactoryTest.Cachers
         /// An event which is fired when the cache is overflown.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowTest()
+        public void OnCacheOverflowTestLRUEvictsCheckUtilization()
         {
             var cache = new LeastRecentlyUsedGenuineCache();
             cache.SetCapacity(1);
@@ -56,7 +39,7 @@ namespace CacheFactoryTest.Cachers
         /// Verify the eviction strategy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowTest2()
+        public void OnCacheOverflowTestLRUEvictsCheckItem()
         {
             var item1 = new GenuineCacheItem(DateTime.Now.AddSeconds(1), new GenuineKey());
             item1.SetCreatedTime(DateTime.Now.AddSeconds(1));
@@ -75,7 +58,7 @@ namespace CacheFactoryTest.Cachers
         }
 
         /// <summary>
-        /// Test the Constructor for the Time Based Eviction FIFO Cache.
+        /// Test the Constructor for the Created Time Based Eviction FIFO Cache.
         /// </summary>
         [TestMethod]
         public void CreatedTimeBasedEvictionLRUConstrutorTest()
@@ -92,7 +75,7 @@ namespace CacheFactoryTest.Cachers
         }
 
         /// <summary>
-        /// Test the Constructor for the Time Based Eviction FIFO Cache.
+        /// Test the Constructor for the Created Time Based Eviction LRU Cache.
         /// </summary>
         [TestMethod]
         public void AccessedTimeBasedEvictionLRUConstrutorTest()
@@ -112,7 +95,7 @@ namespace CacheFactoryTest.Cachers
         /// Verification that the Least Recently Used Cache Item gets evicted first (Time set manually).
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowLRUTest2()
+        public void OnCacheOverflowLRUTestContainsItemEvictsRight()
         {
             var item1 = new GenuineCacheItem(DateTime.Now.AddSeconds(2), new GenuineKey());
             item1.SetCreatedTime(DateTime.Now.AddSeconds(2));
@@ -133,7 +116,7 @@ namespace CacheFactoryTest.Cachers
         /// Verification that a Timespan of 0 prevents the Time Based eviction from occuring when using the  Least Recently Used Eviction policy.
         /// </summary>
         [TestMethod]
-        public void OnCacheOverflowLRUTest3()
+        public void OnCacheOverflowLRUZeroTTLVoidsExpiryTest()
         {
             var cache = new LeastRecentlyUsedGenuineCache();
             cache.SetItemAccessedTimeToLive(TimeSpan.Zero);

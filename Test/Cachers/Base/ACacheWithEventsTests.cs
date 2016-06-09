@@ -1,19 +1,20 @@
 ﻿namespace CacheFactoryTest.Cachers.Base
 {
+    using CacheFactory;
+    using CacheFactory.CacheExceptions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
-    using System.Collections.Generic;
     using System.Threading;
-    using CacheFactory.CacheExceptions;
+    using System.Collections.Generic;
     using TestDTOs;
 
     /// <summary>
-    /// Tests for the Generic Abstracted Cache.
+    /// Tests for the Generic Abstracted Cache With Events.
     /// </summary>
     [TestClass]
-    public class ACacheTests
+    public class ACacheWithEventsTests
     {
-        private FirstInFirstOutGenuineCacheNoEvents _cache;
+        private FirstInFirstOutGenuineCache _cache;
         private GenuineCacheItem _item1;
         private GenuineCacheItem _item2;
         private GenuineCacheItem _item3;
@@ -22,29 +23,29 @@
         [TestInitialize]
         public void ConfigureTestObjects()
         {
-            _cache = new FirstInFirstOutGenuineCacheNoEvents();
+            _cache = new FirstInFirstOutGenuineCache();
             _cache.SetCapacity(2);
-            _item1 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
-            _item2 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
-            _item3 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
-            _item4 = new GenuineCacheItem(DateTime.Now, new GenuineKey());
+            _item1 = new GenuineCacheItem(DateTime.Now.AddMinutes(1), new GenuineKey());
+            _item2 = new GenuineCacheItem(DateTime.Now.AddMinutes(1), new GenuineKey());
+            _item3 = new GenuineCacheItem(DateTime.Now.AddMinutes(1), new GenuineKey());
+            _item4 = new GenuineCacheItem(DateTime.Now.AddMinutes(1), new GenuineKey());
         }
 
         /// <summary>
-        /// Test the contructor for the Generic Abstracted Cache.
+        /// Test the contructor for the Generic Abstracted Cache With Events.
         /// </summary>
         [TestMethod]
         public void ACacheConstructorTest()
         {
             _cache.InsertCacheItem(_item1);
-            Assert.AreEqual(1, _cache.GetUtilization());
+            Assert.IsTrue(_cache.GetUtilization() == 1);
         }
 
         /// <summary>
-        /// Validate all cache elements are set when passed in using SetCache with a valid size.
+        /// Validate all cache elements are set when passed in using SetCache.
         /// </summary>
         [TestMethod]
-        public void SetCacheWithValidSizeTest()
+        public void SetCacheTest()
         {
             _cache.SetCapacity(2);
             _cache.SetCache(new Dictionary<GenuineKey, GenuineCacheItem>
@@ -63,7 +64,6 @@
         {
             try
             {
-                _cache.SetCapacity(2);
                 _cache.SetCache(new Dictionary<GenuineKey, GenuineCacheItem>
                 {
                     {_item1.GetKey(), _item1},
@@ -83,7 +83,7 @@
         }
 
         /// <summary>
-        /// Validates a cache resize on the use of SetCache if there is more cache items then the cache has capacity for using SetCache and the flag is set to true.
+        /// Validates a cache resize on the use of CacheSize if there is more cache items then the cache has capacity for using SetCache and the flag is set to true.
         /// </summary>
         [TestMethod]
         public void ResizeCacheOverCapacityTest()
@@ -110,13 +110,9 @@
                 _cache.RemoveCacheItem(_item4.GetKey());
                 Assert.Fail("Exception expected when searching for invalid item.");
             }
-            catch (ItemNotFoundException)
+            catch
             {
                 // ignore
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Expected Exception ItemNotFoundException." + Environment.NewLine + ex);
             }
         }
 
@@ -128,7 +124,7 @@
         {
             _cache.InsertCacheItem(_item1);
             _cache.RemoveCacheItem(_item1.GetKey());
-            Assert.AreEqual(0, _cache.GetUtilization());
+            Assert.IsTrue(_cache.GetUtilization() == 0);
         }
 
         /// <summary>
@@ -137,19 +133,8 @@
         [TestMethod]
         public void FailGetItemFromCacheTest()
         {
-            try
-            {
-                _cache.GetCachedItem(_item2.GetKey());
-                Assert.Fail("Expected to receive an ItemNotFoundException, no exception was thrown.");
-            }
-            catch (ItemNotFoundException)
-            {
-                // ignore
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Expected to receive an ItemNotFoundException and got exception: " + ex);
-            }
+            var item = _cache.GetCachedItem(_item2.GetKey());
+            Assert.AreNotEqual(item.GetKey(), _item2.GetKey());
         }
 
         /// <summary>
@@ -174,6 +159,79 @@
         }
 
         /// <summary>
+        /// Validates that an exception is thrown when attempting to utilize the global cache name on a cache owned by the CacheManager.
+        /// </summary>
+        [TestMethod]
+        public void RemoveGlobalCacheTest()
+        {
+            try
+            {
+                var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                CacheManager<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>.RemoveCache(cache.GetCacheName());
+                Assert.AreEqual(0, CacheManager<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>.GetCacheCount());
+            }
+            catch (InvalidCacheNameException)
+            {
+                // ignore
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(
+                    "Excepted cache to fail creation and return an InvalidCacheNameException when exception returned was: " +
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Validates that you cannot remove a cache from the cache manager that does not already exist.
+        /// </summary>
+        [TestMethod]
+        public void RemoveGlobalCacheTestWhichDoesNotExist()
+        {
+            try
+            {
+                CacheManager<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>.RemoveCache(_cache.GetCacheName());
+                Assert.Fail("Excepted cache to fail removal from the cache manager.");
+            }
+            catch (InvalidCacheNameException)
+            {
+                // ignore
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(
+                    "Excepted cache to fail creation and return an InvalidCacheNameException when exception returned was: " +
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Validates that an exception is thrown when attempting to utilize the global cache name.
+        /// </summary>
+        [TestMethod]
+        public void GlobalCacheNameToInvalidChangeTest()
+        {
+            try
+            {
+                var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                CacheManager<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>.AddCache(cache);
+                new FirstInFirstOutGenuineCache();
+                _cache.SetCacheName("global_cache");
+                Assert.Fail("Excepted cache to fail creation when utilizing the global cache.");
+            }
+            catch (InvalidCacheNameException)
+            {
+                // ignore
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(
+                    "Excepted cache to fail creation and return an InvalidCacheNameException when exception returned was: " +
+                    ex);
+            }
+        }
+
+        /// <summary>
         /// Validates that setting a capacity with a valid value works.
         /// </summary>
         [TestMethod]
@@ -187,35 +245,13 @@
         /// Validates that setting a capacity with a lower higher than the utilization throws an exception.
         /// </summary>
         [TestMethod]
-        public void SetBadCapacityTestAfterItemInsert()
+        public void SetBadCapacityTest()
         {
             try
             {
                 _cache.InsertCacheItem(_item1);
                 _cache.InsertCacheItem(_item2);
                 _cache.SetCapacity(1);
-                Assert.Fail("Expected exception when resizing cache smaller than contents.");
-            }
-            catch (CacheOverflowException)
-            {
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Excepted to get exception CacheOverflowException and exception returned was: " + ex);
-            }
-        }
-
-        /// <summary>
-        /// Validates that setting a capacity with a lower higher than the utilization throws an exception.
-        /// </summary>
-        [TestMethod]
-        public void SetBadCapacityTestBeforeItemInsert()
-        {
-            try
-            {
-                _cache.SetCapacity(1);
-                _cache.InsertCacheItem(_item1);
-                _cache.InsertCacheItem(_item2);
                 Assert.Fail("Expected exception when resizing cache smaller than contents.");
             }
             catch (CacheOverflowException)
@@ -231,7 +267,7 @@
         /// Validates the cache accepts multiple values.
         /// </summary>
         [TestMethod]
-        public void SetCacheWithMultipleItemsTest()
+        public void SetCacheItemsTest()
         {
             try
             {
@@ -248,27 +284,19 @@
         }
 
         /// <summary>
-        /// Validates that the cache overwrites the first value when adding a second value.
+        /// Validates that the cache exceptions when accepting multiple values with the same key.
         /// </summary>
         [TestMethod]
         public void SetMultipleItemsSameKeyTest()
-        {
+        {// TODO: Work on this
             try
             {
                 _cache.InsertCacheItem(_item1);
-                var item = new GenuineCacheItem();
-                item.SetKey(_item1.GetKey());
-                item.SetCreatedTime(DateTime.Now.AddDays(-1));
-                _cache.InsertCacheItem(item);
-                Assert.Fail("Expected exception to occur.");
+                Assert.Fail("Exception expected whenloading multiple identical values into the cache.");
             }
-            catch (InvalidCacheItemKeyException<GenuineKey>)
+            catch
             {
                 // ignore
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("InvalidCacheItemKey Exception expected." + Environment.NewLine + ex);
             }
         }
 
@@ -293,7 +321,7 @@
             _cache.Clear();
             Assert.AreEqual(0, _cache.GetUtilization());
         }
-
+        
         /// <summary>
         /// Validates that the Item Access TTL value is set correctly.
         /// </summary>
@@ -303,6 +331,20 @@
             var timeSpan = TimeSpan.MaxValue;
             _cache.SetItemAccessedTimeToLive(timeSpan);
             Assert.AreEqual(timeSpan, _cache.GetItemAccessedTimeToLive());
+        }
+
+        /// <summary>
+        /// Validates that the Item Access TTL value is set correctly.
+        /// </summary>
+        [TestMethod]
+        public void ItemAccessedTimeToLiveEvictsTest()
+        {
+            var timeSpan = TimeSpan.FromMilliseconds(100);
+            _cache.SetItemAccessedTimeToLive(timeSpan);
+            _item1.SetLastAccessedTime(DateTime.Now);
+            _cache.InsertCacheItem(_item1);
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
+            Assert.AreEqual(0, _cache.GetUtilization());
         }
 
         /// <summary>

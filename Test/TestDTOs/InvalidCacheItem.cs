@@ -8,12 +8,6 @@
     /// </summary>
     public class InvalidCacheItem : ACacheItem<InvalidCacheItemKey>
     {
-        public InvalidCacheItem(DateTime accessTime, InvalidCacheItemKey key) : base(accessTime, key)
-        {
-        }
-
-        public InvalidCacheItem() : base(DateTime.Now, new InvalidCacheItemKey())
-        {
-        }
+        public InvalidCacheItem() : base(DateTime.Now, new InvalidCacheItemKey()) { }
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using CacheFactory.CacheEventArgs;
 
 namespace CacheFactory.Cachers.Base
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
-    using CacheEventArgs;
+    using CacheExceptions;
 
     /// <summary>
     /// Abstraction of basic Cache functionality. Can be extended and resulting classes consumed by the factory.
@@ -13,159 +14,93 @@ namespace CacheFactory.Cachers.Base
     /// <typeparam name="TCacheItemKey"></typeparam>
     /// <typeparam name="TCacheItem">A Generic type that enables the abstraction of a Cache Item.</typeparam>
     public abstract class ACache<TCacheItemKey, TCacheItem> : ICache<TCacheItemKey, TCacheItem>
-        where TCacheItem : ICacheItem<TCacheItemKey>, new()
+        where TCacheItem : ICacheItem<TCacheItemKey>
         where TCacheItemKey : ICacheItemKey
     {
         /// <summary>
         /// Constructor for a Generic Abstract Cache.
         /// </summary>
-        public ACache()
-        {
-            SetCache(new Dictionary<TCacheItemKey, TCacheItem>());
-            _capacity = 50;
-            _utilization = 0;
-            _cacheName = string.Empty;
-            _createdTime = DateTime.Now;
-        }
-        
-        /// <summary>
-        /// Constructor for a Generic Abstract Cache.
-        /// </summary>
         /// <param name="cache">Initial value of the cache.</param>
         /// <param name="capacity">Capacity the cache can hold (0 for infinite)</param>
-        protected ACache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache = null, int capacity = 0)
+        protected ACache(Dictionary<TCacheItemKey, TCacheItem> cache = null, int capacity = 0)
         {
             if (cache == null) cache = new Dictionary<TCacheItemKey, TCacheItem>();
+            SetCacheName(Guid.NewGuid().ToString());
             SetCache(cache);
-            _capacity = capacity;
-            _utilization = cache.Count();
-            _cacheName = string.Empty;
+            SetCapacity(capacity);
+            Utilization = cache.Count();
+            CacheName = Guid.NewGuid().ToString();
             SetCreatedTimeToLive(TimeSpan.Zero);
             SetAccessedTimeToLive(TimeSpan.Zero);
             SetItemCreatedTimeToLive(TimeSpan.Zero);
             SetItemAccessedTimeToLive(TimeSpan.Zero);
+            SetCacheID(Guid.NewGuid());
         }
 
-
-        // A delegate type for hooking up change notifications.
-        public delegate void OnCacheClearEventHandler(CacheEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnCacheClearEventHandler OnCacheCleared = delegate{  };
-        
-        public delegate void OnCacheOverflowEventHandler(CacheItemEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnCacheOverflowEventHandler OnCacheOverflowed = delegate {  };
-
-        public delegate void OnItemNotFoundEventHandler(CacheItemKeyEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnItemNotFoundEventHandler OnItemNotFound = delegate {  };
-
-        public delegate void OnBeforeItemInsertEventHandler(CacheItemEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnBeforeItemInsertEventHandler OnBeforeItemInserted = delegate {  };
-
-        public delegate void OnAfterItemInsertEventHandler(CacheItemEventArgs<TCacheItemKey, TCacheItem> e);
-        
-        public event OnAfterItemInsertEventHandler OnAfterItemInserted = delegate {  };
-
-        public delegate void OnItemAccessedTimeToLiveEventHandler(CacheEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnItemAccessedTimeToLiveEventHandler OnItemAccessedTimeToLive = delegate { };
-
-        public delegate void OnItemCreatedTimeToLiveHandler(CacheEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnItemCreatedTimeToLiveHandler OnItemCreatedTimeToLive = delegate { };
-
-        public delegate void OnAccessedTimeToLiveEventHandler(CacheEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnAccessedTimeToLiveEventHandler OnAccessedTimeToLive = delegate { };
-
-        public delegate void OnCreatedTimeToLiveHandler(CacheEventArgs<TCacheItemKey, TCacheItem> e);
-
-        public event OnCreatedTimeToLiveHandler OnCreatedTimeToLive = delegate { };
-        
+        #region protected variables
         /// <summary>
         /// Generic Cache Hash
         /// </summary>
-        private Dictionary<TCacheItemKey, TCacheItem> _cache;
+        protected Dictionary<TCacheItemKey, TCacheItem> Cache;
 
         /// <summary>
         /// Capacity of the Hash
         /// </summary>
-        private int _capacity;
+        protected int Capacity;
 
         /// <summary>
         /// Amount of Cached Items.
         /// </summary>
-        private int _utilization;
+        protected int Utilization;
 
         /// <summary>
         /// The name of the cache, automatically generated on instantiation.
         /// </summary>
-        private string _cacheName;
+        protected string CacheName;
 
         /// <summary>
         /// The amount of time the cache is valid for, By default cache items last forever with a Zero value.
         /// </summary>
-        private TimeSpan _accessedTimeToLive;
+        protected TimeSpan AccessedTimeToLive;
         
         /// <summary>
         /// The amount of time the cache is valid for, By default cache items last forever with a Zero value.
         /// </summary>
-        private TimeSpan _createdTimeToLive;
+        protected TimeSpan CreatedTimeToLive;
 
         /// <summary>
-        /// The amount of time the cache is valid for, By default cache items last forever with a Zero value.
+        /// The amount of time the cache items are valid for, By default cache items last forever with a Zero value.
         /// </summary>
-        private TimeSpan _itemCreatedTimeToLive;
+        protected TimeSpan ItemCreatedTimeToLive;
 
         /// <summary>
-        /// The amount of time the cache is valid for, By default cache items last forever with a Zero value.
+        /// The amount of time the cache items are valid for, By default cache items last forever with a Zero value.
         /// </summary>
-        private TimeSpan _itemAccessedTimeToLive;
+        protected TimeSpan ItemAccessedTimeToLive;
 
-        private DateTime _accessedTime;
-        private DateTime _createdTime;
+        /// <summary>
+        /// The amount of time the cache is valid for after creation, By default cache items last forever with a Zero value.
+        /// </summary>
+        protected DateTime CreatedTime;
+
+        /// <summary>
+        /// The amount of time the cache iis valid for after last accessed, By default cache items last forever with a Zero value.
+        /// </summary>
+        protected DateTime AccessedTime;
+
+        /// <summary>
+        /// The Identification Guid of the cache.
+        /// </summary>
+        protected Guid CacheID;
+        #endregion
 
         /// <summary>
         /// Generic Cache held by the Abstracted Cache.
         /// </summary>
         public Dictionary<TCacheItemKey, TCacheItem> GetCache()
         {
-            return _cache;
-        }
-
-        /// <summary>
-        /// Manually set the cache values.
-        /// </summary>
-        /// <param name="cache">The Generic Cache which is to be loaded into the Abstracted Cache</param>
-        /// <param name="resize"></param>
-        public void SetCache(IEnumerable<KeyValuePair<TCacheItemKey, TCacheItem>> cache, bool resize = false)
-        {
-            _accessedTime = DateTime.Now;
-
-            if (resize && cache.Count() > _capacity) SetCapacity(cache.Count());
-
-            _cache = cache
-                .GroupBy(tp => tp.Key, tp => tp.Value)
-                .ToDictionary(gr => gr.Key, gr => cache.First(item => item.Key.Equals(gr.Key)).Value);
-
-            _utilization = _cache.Count();
-        }
-
-        /// <summary>
-        /// Remove a Cache Item from the Generic Cache by key
-        /// </summary>
-        /// <param name="key">The key which the Cache Item should be removed from the Hash by.</param>
-        public void RemoveCacheItem(TCacheItemKey key)
-        {
-            _accessedTime = DateTime.Now;
-
-            if (_cache.ContainsKey(key))
-            {
-                _cache.Remove(key);
-                _utilization = _utilization - 1;
-            }
+            ClearCacheIfExpired();
+            return Cache;
         }
 
         /// <summary>
@@ -174,35 +109,28 @@ namespace CacheFactory.Cachers.Base
         /// <returns>The string holding the Cache Name.</returns>
         public string GetCacheName()
         {
-            _accessedTime = DateTime.Now;
-
-            return _cacheName;
+            return CacheName;
         }
 
         /// <summary>
-        /// The name of the Cache which is created at runtime.
+        /// Get the amount of records the cache can hold. Does cache expiry checks and sets the access time.
         /// </summary>
         /// <returns>The string holding the Cache Name.</returns>
         public int GetCapacity()
         {
-            _accessedTime = DateTime.Now;
-
-            return _capacity;
+            return Capacity;
         }
 
         /// <summary>
-        /// The name of the Cache which is created at runtime.
+        /// Get the utilization of the cache, does expiry checks to ensure that the utilization return value is accurate.
         /// </summary>
-        /// <returns>The string holding the Cache Name.</returns>
+        /// <returns>The amount of records that are held within the cache.</returns>
         public int GetUtilization()
         {
-            _accessedTime = DateTime.Now;
-
-            OnCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnItemAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnItemCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            return _utilization;
+            ClearCacheIfExpired();
+            RemoveExpiredItemsByCreatedTime();
+            RemoveExpiredItemsByAccessedTime();
+            return Utilization;
         }
 
         /// <summary>
@@ -211,7 +139,7 @@ namespace CacheFactory.Cachers.Base
         /// <returns>The timespan the cache item is valid for (Default is unlimited with a Zero value).</returns>
         public TimeSpan GetCreatedTimeToLive()
         {
-            return _createdTimeToLive;
+            return CreatedTimeToLive;
         }
 
         /// <summary>
@@ -220,18 +148,16 @@ namespace CacheFactory.Cachers.Base
         /// <returns>The timespan the cache item is valid for (Default is unlimited with a Zero value).</returns>
         public TimeSpan GetAccessedTimeToLive()
         {
-            return _accessedTimeToLive;
+            return AccessedTimeToLive;
         }
 
         /// <summary>
-        /// The Amount of time the cache item is valid for.
+        /// The Amount of time cache items are valid for.
         /// </summary>
         /// <returns>The timespan the cache item is valid for (Default is unlimited with a Zero value).</returns>
         public TimeSpan GetItemCreatedTimeToLive()
         {
-            _accessedTime = DateTime.Now;
-
-            return _itemCreatedTimeToLive;
+            return ItemCreatedTimeToLive;
         }
 
         /// <summary>
@@ -240,9 +166,7 @@ namespace CacheFactory.Cachers.Base
         /// <returns>The timespan the cache item is valid for (Default is unlimited with a Zero value).</returns>
         public TimeSpan GetItemAccessedTimeToLive()
         {
-            _accessedTime = DateTime.Now;
-
-            return _itemAccessedTimeToLive;
+            return ItemAccessedTimeToLive;
         }
 
         /// <summary>
@@ -252,42 +176,89 @@ namespace CacheFactory.Cachers.Base
         /// <returns>The cache item by key if it exists, null if it does not.</returns>
         public TCacheItem GetCachedItem(TCacheItemKey key)
         {
-            _accessedTime = DateTime.Now;
+            ClearCacheIfExpired();
 
-            OnItemCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnItemAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-
-            if (_cache.ContainsKey(key))
+            if (Cache.ContainsKey(key))
             {
-                _cache[key].SetLastAccessedTime(DateTime.Now);
-                return _cache.First(x => x.Key.Equals(key)).Value;
+                Cache[key].SetLastAccessedTime(DateTime.Now);
+                return Cache.First(x => x.Key.Equals(key)).Value;
             }
 
-            OnItemNotFound(new CacheItemKeyEventArgs<TCacheItemKey, TCacheItem>(key, ref _cache));
-            return new TCacheItem();
+            throw new ItemNotFoundException(key);
+        }
+
+        /// <summary>
+        /// Remove cache items which have expired against the TTL of the created time if it has not been set to 0.
+        /// </summary>
+        /// <returns>The items which have expired in the cache.</returns>
+        public IEnumerable<TCacheItem> GetExpiredItemsByCreatedTime()
+        {
+            if (ItemCreatedTimeToLive <= TimeSpan.Zero) return new Collection<TCacheItem>();
+            return GetCache().Where(x => (DateTime.Now - x.Value.GetCreatedTime()).Duration() >= ItemCreatedTimeToLive).Select(x => x.Value);
+        }
+
+        /// <summary>
+        /// Get cache items which have expired against the TTL of the accessed time if it has not been set to 0.
+        /// </summary>
+        /// <returns>The items which have expired in the cache.</returns>
+        public IEnumerable<TCacheItem> GetExpiredItemsByAccessedTime()
+        {
+            if (ItemAccessedTimeToLive <= TimeSpan.Zero) return new Collection<TCacheItem>();
+            return GetCache().Where(x => (DateTime.Now - x.Value.GetLastAccessedTime()).Duration() >= ItemAccessedTimeToLive).Select(x => x.Value);
+        }
+
+        /// <summary>
+        /// Gets the Identifier of the Cache instance.
+        /// </summary>
+        /// <returns>A GUID identifying the Cache instance.</returns>
+        public Guid GetCacheID()
+        {
+            return CacheID;
+        }
+
+        /// <summary>
+        /// Manually set the cache values.
+        /// </summary>
+        /// <param name="cache">The Generic Cache which is to be loaded into the Abstracted Cache</param>
+        /// <param name="resize"></param>
+        public void SetCache(Dictionary<TCacheItemKey, TCacheItem> cache, bool resize = false)
+        {
+            AccessedTime = DateTime.Now;
+
+            if (GetCapacity() != 0 && cache.Count > GetCapacity())
+            {
+                if (resize)
+                {
+                    SetCapacity(cache.Count());
+                }
+                else
+                {
+                    throw new CacheOverflowException(GetCacheName(), "Unable to set the capacity to a lower value than the utilization, please plan accordingly.");
+                }
+            }
+
+            Cache = cache
+                .GroupBy(tp => tp.Key, tp => tp.Value)
+                .ToDictionary(gr => gr.Key, gr => cache.First(item => item.Key.Equals(gr.Key)).Value);
+
+            Utilization = Cache.Count();
         }
 
         /// <summary>
         /// Enables the ability to change the Cache Name while verifying if a cache of that type with that name already exists.
         /// </summary>
         /// <param name="cacheName">A string containing the new Cache name.</param>
-        /// <param name="existingCaches">Existing caches to check if the cache names already exists.</param>
-        public void SetCacheName<TCache>(string cacheName, IEnumerable<TCache> existingCaches) where TCache : ICache<TCacheItemKey, TCacheItem>
+        public void SetCacheName(string cacheName)
         {
-            _accessedTime = DateTime.Now;
-
-            var cacheExists = existingCaches.Any(m => m.GetCacheName() == cacheName);
-
-            if (cacheExists)
-            {
-                throw new ArgumentException("Cache with the name \"" + cacheName + "\" already exists.");
-            }
-
-            _cacheName = cacheName;
+            ClearCacheIfExpired();
+            OnCacheNameChanged(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref Cache, cacheName));
+            CacheName = cacheName;
         }
 
+        public delegate void OnCacheNameChangedHandler(CacheEventArgs<TCacheItemKey, TCacheItem> e);
+
+        public event OnCacheNameChangedHandler OnCacheNameChanged = delegate { };
+        
         /// <summary>
         /// The ability to set the amount of records that can be loaded into the Cache.
         /// </summary>
@@ -295,16 +266,13 @@ namespace CacheFactory.Cachers.Base
         /// <returns></returns>
         public bool SetCapacity(int capacity)
         {
-            _accessedTime = DateTime.Now;
+            ClearCacheIfExpired();
+            RemoveExpiredItemsByAccessedTime();
+            RemoveExpiredItemsByCreatedTime();
 
-            OnItemCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnItemAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
+            if (Utilization > capacity) throw new CacheOverflowException(GetCacheName(), "Unable to set the utilization to a lower value than the capacity, please plan accordingly.");
 
-            if (_utilization > _capacity) return false;
-
-            _capacity = capacity;
+            Capacity = capacity;
             return true;
         }
         
@@ -314,17 +282,8 @@ namespace CacheFactory.Cachers.Base
         /// <param name="timeToLive">The timespan the cache item is valid for (Default is unlimited with a Zero value).</param>
         public void SetItemCreatedTimeToLive(TimeSpan timeToLive)
         {
-            _accessedTime = DateTime.Now;
-
-            if (timeToLive.Equals(TimeSpan.Zero))
-            {
-                OnItemCreatedTimeToLive -= ACache_OnItemCreatedTimeToLive;
-            }
-            else
-            {
-                OnItemCreatedTimeToLive += ACache_OnItemCreatedTimeToLive;
-            }
-            _itemCreatedTimeToLive = timeToLive;
+            ClearCacheIfExpired();
+            ItemCreatedTimeToLive = timeToLive;
         }
 
         /// <summary>
@@ -333,18 +292,8 @@ namespace CacheFactory.Cachers.Base
         /// <param name="timeToLive">The timespan the cache item is valid for (Default is unlimited with a Zero value).</param>
         public void SetItemAccessedTimeToLive(TimeSpan timeToLive)
         {
-            _accessedTime = DateTime.Now;
-
-            if (timeToLive.Equals(TimeSpan.Zero))
-            {
-                OnItemAccessedTimeToLive -= ACache_OnItemAccessedTimeToLive;
-            }
-            else
-            {
-                OnItemAccessedTimeToLive += ACache_OnItemAccessedTimeToLive;
-            }
-
-            _itemAccessedTimeToLive = timeToLive;
+            ClearCacheIfExpired();
+            ItemAccessedTimeToLive = timeToLive;
         }
 
         /// <summary>
@@ -353,25 +302,17 @@ namespace CacheFactory.Cachers.Base
         /// <param name="timeToLive">The timespan the cache is valid for (Default is unlimited with a Zero value).</param>
         public void SetCreatedTimeToLive(TimeSpan timeToLive)
         {
-            _accessedTime = DateTime.Now;
-
-            if (timeToLive.Equals(TimeSpan.Zero))
-            {
-                OnCreatedTimeToLive -= ACache_OnCreatedTimeToLive;
-            }
-            else
-            {
-                OnCreatedTimeToLive += ACache_OnCreatedTimeToLive;
-            }
-
-            _createdTimeToLive = timeToLive;
+            AccessedTime = DateTime.Now;
+            CreatedTimeToLive = timeToLive;
         }
 
-        private void ACache_OnCreatedTimeToLive(CacheEventArgs<TCacheItemKey, TCacheItem> e)
+        /// <summary>
+        /// Set the identification Guid for loading / saving as well as identification of the cache within reflection.
+        /// </summary>
+        /// <param name="cacheID">A Guid identifying the cache.</param>
+        public void SetCacheID(Guid cacheID)
         {
-            _accessedTime = DateTime.Now;
-
-            if (GetAccessedTimeToLive() <= (DateTime.Now - _createdTime).Duration().Duration()) Clear();
+            CacheID = cacheID;
         }
         
         /// <summary>
@@ -380,34 +321,8 @@ namespace CacheFactory.Cachers.Base
         /// <param name="timeToLive">The timespan the cache is valid for (Default is unlimited with a Zero value).</param>
         public void SetAccessedTimeToLive(TimeSpan timeToLive)
         {
-            _accessedTime = DateTime.Now;
-
-            if (timeToLive.Equals(TimeSpan.Zero))
-            {
-                OnAccessedTimeToLive -= ACache_OnAccessedTimeToLive;
-            }
-            else
-            {
-                OnAccessedTimeToLive += ACache_OnAccessedTimeToLive;
-            }
-
-            _accessedTimeToLive = timeToLive;
-        }
-
-        private void ACache_OnItemCreatedTimeToLive(CacheEventArgs<TCacheItemKey, TCacheItem> e)
-        {
-            RemoveExpiredItemsByCreatedTime();
-        }
-
-        private void ACache_OnAccessedTimeToLive(CacheEventArgs<TCacheItemKey, TCacheItem> e)
-        {
-            if (GetAccessedTimeToLive() <=
-                (DateTime.Now - _accessedTime).Duration().Duration()) Clear();
-        }
-
-        private void ACache_OnItemAccessedTimeToLive(CacheEventArgs<TCacheItemKey, TCacheItem> e)
-        {
-            RemoveExpiredItemsByAccessedTime();
+            ClearCacheIfExpired();
+            AccessedTimeToLive = timeToLive;
         }
 
         /// <summary>
@@ -416,67 +331,79 @@ namespace CacheFactory.Cachers.Base
         /// <param name="item"></param>
         public void InsertCacheItem(TCacheItem item)
         {
-            _accessedTime = DateTime.Now;
+            ClearCacheIfExpired();
+            RemoveExpiredItemsByAccessedTime();
+            RemoveExpiredItemsByCreatedTime();
 
-            OnItemCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnItemAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnCreatedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnAccessedTimeToLive(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            OnBeforeItemInserted(new CacheItemEventArgs<TCacheItemKey, TCacheItem>(ref item, ref _cache));
-
-            if (!_cache.ContainsKey(item.GetKey()))
+            if (GetItemAccessedTimeToLive() == TimeSpan.Zero || (DateTime.Now - item.GetLastAccessedTime()).Duration() < GetItemAccessedTimeToLive())
             {
-                _utilization = _utilization + 1;
+                if (!Cache.ContainsKey(item.GetKey()))
+                {
+                    Utilization = Utilization + 1;
+                }
+                else
+                {
+                    throw new InvalidCacheItemKeyException<TCacheItemKey>(item.GetKey());
+                }
+
+                Cache.Add(item.GetKey(), item);
+
+                if (Capacity > 0 && Utilization > Capacity)
+                {
+                    throw new CacheOverflowException(GetCacheName(), "Cache overflowed, please attach appropriate evicton techniques.");
+                }
             }
-
-            _cache.Add(item.GetKey(), item);
-
-            if (_capacity <= 0 || _utilization > _capacity)
-            {
-                OnCacheOverflowed(new CacheItemEventArgs<TCacheItemKey, TCacheItem>(ref item, ref _cache));
-            }
-
-            OnAfterItemInserted(new CacheItemEventArgs<TCacheItemKey, TCacheItem>(ref item, ref _cache));
         }
-        
+
         /// <summary>
-        /// Get the items which have expired in the cache.
+        /// Remove cache items which have expired against the TTL of the creation time if it has not been set to 0.
         /// </summary>
-        /// <returns>The items which have expired in the cache.</returns>
-        public IEnumerable<TCacheItem> GetExpiredItemsByCreatedTime()
-        {
-            _accessedTime = DateTime.Now;
-
-            if (_itemCreatedTimeToLive <= TimeSpan.Zero) return new Collection<TCacheItem>();
-            return GetCache().Where(x => (DateTime.Now - x.Value.GetCreatedTime()).Duration() >= _itemCreatedTimeToLive).Select(x => x.Value);
-        }
-
         public void RemoveExpiredItemsByCreatedTime()
         {
-            _accessedTime = DateTime.Now;
-
             var expiredItems = GetExpiredItemsByCreatedTime().Select(m => m.GetKey()).ToList();
             foreach (var item in expiredItems) RemoveCacheItem(item);
         }
 
         /// <summary>
-        /// Get the items which have expired in the cache.
+        /// Remove cache items which have expired against the TTL of the accessed time if it has not been set to 0.
         /// </summary>
-        /// <returns>The items which have expired in the cache.</returns>
-        public IEnumerable<TCacheItem> GetExpiredItemsByAccessedTime()
-        {
-            _accessedTime = DateTime.Now;
-
-            if (_itemAccessedTimeToLive <= TimeSpan.Zero) return new Collection<TCacheItem>();
-            return GetCache().Where(x => (DateTime.Now - x.Value.GetLastAccessedTime()).Duration() >= _itemAccessedTimeToLive).Select(x => x.Value);
-        }
-
         public void RemoveExpiredItemsByAccessedTime()
         {
-            _accessedTime = DateTime.Now;
-
             var expiredItems = GetExpiredItemsByAccessedTime().Select(m => m.GetKey()).ToList();
             foreach (var item in expiredItems) RemoveCacheItem(item);
+        }
+
+        /// <summary>
+        /// Remove a Cache Item from the Generic Cache by key
+        /// </summary>
+        /// <param name="key">The key which the Cache Item should be removed from the Hash by.</param>
+        public void RemoveCacheItem(TCacheItemKey key)
+        {
+            AccessedTime = DateTime.Now;
+
+            if (Cache.ContainsKey(key))
+            {
+                Cache.Remove(key);
+                Utilization = Utilization - 1;
+            }
+            else
+            {
+                throw new ItemNotFoundException(key);
+            }
+        }
+
+        /// <summary>
+        /// Clear the entire cache if the access or creation dates have expired.
+        /// </summary>
+        public void ClearCacheIfExpired()
+        {
+            if (GetAccessedTimeToLive() != TimeSpan.Zero && GetAccessedTimeToLive() <= (DateTime.Now - AccessedTime).Duration().Duration() || GetCreatedTimeToLive() != TimeSpan.Zero && GetCreatedTimeToLive() <= (DateTime.Now - CreatedTime).Duration().Duration())
+            {
+                Clear();
+                CreatedTime = DateTime.Now;
+            }
+
+            AccessedTime = DateTime.Now;
         }
 
         /// <summary>
@@ -484,12 +411,10 @@ namespace CacheFactory.Cachers.Base
         /// </summary>
         public void Clear()
         {
-            _accessedTime = DateTime.Now;
-            _createdTime = DateTime.Now;
-
-            OnCacheCleared(new CacheEventArgs<TCacheItemKey, TCacheItem>(ref _cache));
-            _cache = new Dictionary<TCacheItemKey, TCacheItem>();
-            _utilization = 0;
+            AccessedTime = DateTime.Now;
+            CreatedTime = DateTime.Now;
+            Cache = new Dictionary<TCacheItemKey, TCacheItem>();
+            Utilization = 0;
         }
     }
 }

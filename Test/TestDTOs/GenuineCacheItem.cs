@@ -3,6 +3,9 @@
     using System;
     using CacheFactory.Cachers.Base;
 
+    /// <summary>
+    /// Enables the Cache Item object to be tested
+    /// </summary>
     internal class GenuineCacheItem : ACacheItem<GenuineKey>, ICacheItem<GenuineKey>
     {
         public GenuineCacheItem() : base(DateTime.Now, new GenuineKey())
@@ -16,11 +19,6 @@
         public new GenuineKey GetKey()
         {
             return base.GetKey();
-        }
-
-        public new void SetKey(GenuineKey key)
-        {
-            base.SetKey(key);
         }
     }
 }

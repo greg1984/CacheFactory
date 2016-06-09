@@ -1,6 +1,5 @@
 ﻿namespace CacheFactoryTest.Cachers
 {
-
     using CacheFactory.Cachers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
@@ -9,7 +8,7 @@
     using TestDTOs;
 
     /// <summary>
-    /// Summary description for CacheFactoryTest
+    /// A test class to ensure the Cache Evictor works correctly.
     /// </summary>
     [TestClass]
     public class CacheEvictorTests
@@ -37,6 +36,9 @@
             _cache.Add(_item4.GetKey(), _item4);
         }
 
+        /// <summary>
+        /// Validate that the evictor returns the correct LRU object.
+        /// </summary>
         [TestMethod]
         public void GetLRUTest()
         {
@@ -46,6 +48,9 @@
             Assert.AreEqual(keyToBeEvicted.GetKey(), _item3.GetKey(), keyToBeEvicted + "<>" + _item3.GetKey());
         }
 
+        /// <summary>
+        /// Validate that the evictor returns the most recently inserted item.
+        /// </summary>
         [TestMethod]
         public void GetLatestInsertedItemTest()
         {
@@ -53,6 +58,9 @@
             Assert.AreEqual(keyToBeEvicted.GetKey(), _item4.GetKey(), keyToBeEvicted + "<>" + _item4.GetKey());
         }
 
+        /// <summary>
+        /// Validate that the evictor returns the least recently inserted item.
+        /// </summary>
         [TestMethod]
         public void GetOldestInsertedItemTest()
         {

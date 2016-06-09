@@ -1,13 +1,12 @@
 ﻿namespace CacheFactoryTest.TestDTOs
 {
-    using System.Collections.Generic;
     using CacheFactory.Cachers;
 
+    /// <summary>
+    /// A Cache object to verify the functionality of the LRU Cache.
+    /// </summary>
     internal class LeastRecentlyUsedGenuineCache : LeastRecentlyUsedCache<GenuineKey, GenuineCacheItem>
     {
-        public LeastRecentlyUsedGenuineCache() : base(null, 50)
-        {
-
-        }
+        public LeastRecentlyUsedGenuineCache() : base(null, 50) { }
     }
 }

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace CacheFactory.CacheEventArgs
+﻿namespace CacheFactory.CacheEventArgs
 {
     using Cachers.Base;
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// An event which is related to a Cached Item.
@@ -27,7 +26,6 @@ namespace CacheFactory.CacheEventArgs
         public Dictionary<TCacheItemKey, TCacheItem> GetCache()
         {
             return _cache;
-
         }
 
         /// <summary>

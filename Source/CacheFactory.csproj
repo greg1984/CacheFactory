@@ -33,7 +33,13 @@
     <Compile Include="CacheEventArgs\CacheEventArgs.cs" />
     <Compile Include="CacheEventArgs\CacheItemKeyEventArgs.cs" />
     <Compile Include="CacheEventArgs\CacheItemEventArgs.cs" />
+    <Compile Include="CacheExceptions\CacheOverflowException.cs" />
+    <Compile Include="CacheExceptions\InvalidCacheItemKeyException.cs" />
+    <Compile Include="CacheManager.cs" />
+    <Compile Include="CacheExceptions\InvalidCacheNameException.cs" />
+    <Compile Include="CacheExceptions\ItemNotFoundException.cs" />
     <Compile Include="CacheFactory.cs" />
+    <Compile Include="Cachers\Base\ACacheWithEvents.cs" />
     <Compile Include="Cachers\Base\ICache.cs" />
     <Compile Include="Cachers\Base\ICacheItem.cs" />
     <Compile Include="Cachers\Base\ICacheItemKey.cs" />
@@ -49,6 +55,7 @@
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

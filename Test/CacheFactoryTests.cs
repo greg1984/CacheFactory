@@ -1,8 +1,10 @@
 ﻿namespace CacheFactoryTest
 {
+    using CacheFactory.CacheExceptions;
     using CacheFactory;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
+    using System.Linq;
     using TestDTOs;
 
     /// <summary>
@@ -17,22 +19,6 @@
         [TestMethod]
         public void FIFOConstructorTest()
         {
-            try
-            {
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FIFO Cache: " + ex );
-            }
-        }
-
-        /// <summary>
-        /// Testing that the FIFO Cache is being constructed correctly by the Factory.
-        /// </summary>
-        [TestMethod]
-        public void FIFOConstructorTest2()
-        {
             var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache();
             if (cache == null) Assert.Fail("First In First Out Cache resulted in null when being constructed.");
         }
@@ -42,22 +28,6 @@
         /// </summary>
         [TestMethod]
         public void FILOConstructorTest()
-        {
-            try
-            {
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FILO Cache." + ex);
-            }
-        }
-
-        /// <summary>
-        /// Testing that the FILO Cache is being constructed correctly by the Factory.
-        /// </summary>
-        [TestMethod]
-        public void FILOConstructorTest2()
         {
             var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache();
             if (cache == null) Assert.Fail("First In Last Out Cache resulted in null when being constructed.");
@@ -69,51 +39,8 @@
         [TestMethod]
         public void LRUConstructorTest()
         {
-            try
-            {
-                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache();
-
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the LRU Cache." + ex);
-            }
-        }
-
-        /// <summary>
-        /// Testing that the LRU Cache is being constructed correctly by the Factory.
-        /// </summary>
-        [TestMethod]
-        public void LRUConstructorTest2()
-        {
             var cache = new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache();
             if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed.");
-        }
-
-        /// <summary>
-        /// Testing that the TTL Cache is being constructed correctly by the Factory.
-        /// </summary>
-        [TestMethod]
-        public void TimeBasedEvictionConstrutorTest()
-        {
-            try
-            {
-                // new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the Time Based Eviction Cache." + ex);
-            }
-        }
-
-        /// <summary>
-        /// Testing that the TTL Cache is being constructed correctly by the Factory.
-        /// </summary>
-        [TestMethod]
-        public void TimeBasedEvictionConstrutorTest2()
-        {
-     ////       var cache = new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache();
-        //    if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed.");
         }
 
         /// <summary>
@@ -139,14 +66,8 @@
         [TestMethod]
         public void FIFOGlobalConstructorTest()
         {
-            try
-            {
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FIFO Cache." + ex);
-            }
+            var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+            if (cache == null) Assert.Fail("First In First Out Cache resulted in null when being constructed.");
         }
 
         /// <summary>
@@ -155,14 +76,8 @@
         [TestMethod]
         public void FILOGlobalConstructorTest()
         {
-            try
-            {
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FIFO Cache." + ex);
-            }
+            var cache = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+            if (cache == null) Assert.Fail("First In Last Out Cache resulted in null when being constructed.");
         }
 
         /// <summary>
@@ -171,30 +86,8 @@
         [TestMethod]
         public void LRUGlobalConstructorTest()
         {
-            try
-            {
-                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FIFO Cache." + ex);
-            }
-        }
-
-        /// <summary>
-        /// Testing that the TTL Global Cache is being constructed correctly by the Factory.
-        /// </summary>
-        [TestMethod]
-        public void TimeBasedEvictionGlobalConstrutorTest()
-        {
-            try
-            {
-     //           new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache(true);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FIFO Cache." + ex);
-            }
+            var cache = new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
+            if (cache == null) Assert.Fail("Least Recently Used Cache resulted in null when being constructed.");
         }
 
         /// <summary>
@@ -215,24 +108,25 @@
         }
 
         /// <summary>
-        /// Testing that the FIFO Global Cache throws an exception if you try and create multiple instances of them.
+        /// Testing that the same cache is returned when you try create two global caches of the same type.
         /// </summary>
         [TestMethod]
         public void FIFOMultipleGlobalConstructorTest()
         {
             try
             {
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                var cache1 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                var cache2 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInFirstOutGenuineCache>().CreateCache(true);
+                Assert.AreEqual(cache1.GetCacheID(), cache2.GetCacheID());
             }
             catch (Exception ex)
             {
-                Assert.Fail("Failed to generate the FIFO Cache." + ex );
+                Assert.Fail("Failed to generate the FIFO Cache." + ex);
             }
         }
 
         /// <summary>
-        /// Testing that the FIFO Global Cache throws an exception if you try and create multiple instances of them.
+        /// Testing to make sure that the cache returns the name "global_cache" when creating a global cache.
         /// </summary>
         [TestMethod]
         public void FIFOMultipleGlobalConstructorTest2()
@@ -249,15 +143,16 @@
         }
 
         /// <summary>
-        /// Testing that the FILO Global Cache throws an exception if you try and create multiple instances of them.
+        /// Testing that the same cache is returned when you try create two global caches of the same type.
         /// </summary>
         [TestMethod]
         public void FILOMultipleGlobalConstructorTest()
         {
             try
             {
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
-                new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+                var cache1 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+                var cache2 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+                Assert.AreEqual(cache1.GetCacheName(), cache2.GetCacheName());
             }
             catch (Exception ex)
             {
@@ -266,36 +161,57 @@
         }
 
         /// <summary>
-        /// Testing that the LRU Global Cache throws an exception if you try and create multiple instances of them.
+        /// Testing that the same cache is returned when you try create two global caches of the same type.
+        /// </summary>
+        [TestMethod]
+        public void CacheManagerNameChangeTest()
+        {
+            var cache1 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+            var guid = Guid.NewGuid().ToString();
+            CacheManager<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>.GetCacheByName(cache1.GetCacheName()).First().SetCacheName(guid);
+            Assert.AreEqual(cache1.GetCacheName(), guid);
+        }
+
+        /// <summary>
+        /// Ensures that an exception is thrown when setting a global cache to an invalid name.
+        /// </summary>
+        [TestMethod]
+        public void SetCacheInvalidNameTest()
+        {
+            try
+            {
+                var cache1 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache(true);
+                var cache2 = new CacheFactory<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>().CreateCache();
+                CacheManager<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>.AddCache(cache2);
+                CacheManager<GenuineKey, GenuineCacheItem, FirstInLastOutGenuineCache>.GetCacheByName(
+                    cache1.GetCacheName()).First().SetCacheName(cache2.GetCacheName());
+                Assert.Fail("No Exception was thrown.");
+            }
+            catch (InvalidCacheNameException)
+            {
+                // ignore
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Expected InvalidCacheNameException to be thrown. " + Environment.NewLine + ex);
+            }
+        }
+
+        /// <summary>
+        /// Testing that the same cache is returned when you try create two global caches of the same type.
         /// </summary>
         [TestMethod]
         public void LRUGlobalMultipleConstructorTest()
         {
             try
             {
-                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
-                new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
+                var cache1 = new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
+                var cache2 = new CacheFactory<GenuineKey, GenuineCacheItem, LeastRecentlyUsedGenuineCache>().CreateCache(true);
+                Assert.AreEqual(cache1.GetCacheName(), cache2.GetCacheName());
             }
             catch (Exception ex)
             {
                 Assert.Fail("Failed to generate the FIFO Cache." + ex );
-            }
-        }
-
-        /// <summary>
-        /// Testing that the TTL Global Cache throws an exception if you try and create multiple instances of them.
-        /// </summary>
-        [TestMethod]
-        public void TimeBasedEvictionMultipleGlobalConstrutorTest()
-        {
-            try
-            {
-      //          new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache(true);
-        //        new CacheFactory<GenuineKey, GenuineCacheItem, TimeBasedEvictionCache<GenuineKey, GenuineCacheItem>>().CreateCache(true);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Failed to generate the FIFO Cache." + ex);
             }
         }
     }
